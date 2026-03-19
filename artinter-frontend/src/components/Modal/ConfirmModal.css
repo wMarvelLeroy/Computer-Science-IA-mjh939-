@@ -1,0 +1,131 @@
+/* Modal Overlay / Backdrop */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+    background: var(--color-bg-primary);
+    padding: 30px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 40px var(--color-shadow);
+    border: 1px solid var(--color-border-hr);
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--color-text-primary);
+    font-weight: 700;
+}
+
+.modal-icon-danger {
+    font-size: 1.5rem;
+}
+
+.modal-body p {
+    margin: 0;
+    color: var(--color-text-placeholder);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.btn-modal-cancel {
+    padding: 10px 20px;
+    border: 1px solid var(--color-border-hr);
+    background: transparent;
+    border-radius: 8px;
+    color: var(--color-text-primary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-modal-cancel:hover {
+    background: var(--color-bg-secondary);
+}
+
+.btn-modal-confirm {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    color: var(--color-text-primary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s transform;
+    box-shadow: 0 2px 8px var(--color-shadow);
+}
+
+.btn-modal-confirm:active {
+    transform: scale(0.96);
+}
+
+.btn-modal-confirm.primary {
+    background: var(--color-accent);
+}
+
+.btn-modal-confirm.primary:hover {
+    background: var(--color-accent-hover);
+
+}
+
+.btn-modal-confirm.danger {
+    background: var(--color-accent-red);
+}
+
+.btn-modal-confirm.danger:hover {
+    background: var(--color-accent-red-hover);
+    box-shadow: 0 4px 12px var(--color-accent-red-light);
+}
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}

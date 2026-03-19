@@ -1,0 +1,396 @@
+/* ==========================================
+   ARTICLES LIST — Dashboard Auteur
+   ========================================== */
+
+.al-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Header ── */
+.al-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.al-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin: 0 0 4px;
+}
+
+.al-subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-placeholder);
+}
+
+.al-new-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.al-new-btn:hover {
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+}
+
+/* ── Stats ── */
+.al-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.al-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  background: var(--color-bg-sidebar);
+  border: 1px solid var(--color-border-hr);
+  border-radius: 12px;
+  flex: 1;
+  min-width: 100px;
+}
+
+.al-stat-icon { font-size: 1.2rem; }
+.al-stat-icon.all       { color: var(--color-accent); }
+.al-stat-icon.published { color: #10b981; }
+.al-stat-icon.draft     { color: #f59e0b; }
+
+.al-stat-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.al-stat-label {
+  font-size: 0.8rem;
+  color: var(--color-text-placeholder);
+  margin-left: -4px;
+}
+
+/* ── Toolbar ── */
+.al-toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.al-search {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.al-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-placeholder);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.al-search-input {
+  width: 100%;
+  padding: 10px 14px 10px 36px;
+  border: 1px solid var(--color-border-hr);
+  border-radius: 10px;
+  background: var(--color-bg-sidebar);
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border-color 0.18s;
+  box-sizing: border-box;
+}
+.al-search-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.al-filters {
+  display: flex;
+  gap: 6px;
+}
+
+.al-filter-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--color-border-hr);
+  border-radius: 8px;
+  background: var(--color-bg-sidebar);
+  color: var(--color-text-placeholder);
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.al-filter-btn:hover  { border-color: var(--color-accent); color: var(--color-accent); }
+.al-filter-btn.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: white;
+  font-weight: 600;
+}
+
+/* ── Liste ── */
+.al-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.al-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--color-bg-sidebar);
+  border: 1px solid var(--color-border-hr);
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+.al-item:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 4px 12px var(--color-shadow);
+}
+.al-item--deleting {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Couverture */
+.al-cover {
+  width: 72px;
+  height: 52px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-hr);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-placeholder);
+  font-size: 1.2rem;
+}
+.al-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Infos */
+.al-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.al-item-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.al-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.al-meta-chip {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 20px;
+  background: var(--color-bg-primary);
+  color: var(--color-text-placeholder);
+  border: 1px solid var(--color-border-hr);
+}
+
+.al-meta-item {
+  font-size: 0.8rem;
+  color: var(--color-text-placeholder);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Actions */
+.al-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.al-action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-hr);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: all 0.18s;
+  color: var(--color-text-placeholder);
+}
+.al-action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.al-action-btn--edit:hover  { background: var(--color-accent); border-color: var(--color-accent); color: white; }
+.al-action-btn--view:hover  { background: #3b82f6; border-color: #3b82f6; color: white; }
+.al-action-btn--delete:hover { background: #ef4444; border-color: #ef4444; color: white; }
+
+/* ── Empty ── */
+.al-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--color-text-placeholder);
+}
+
+.al-empty-icon {
+  font-size: 3rem;
+  opacity: 0.4;
+}
+
+.al-empty p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* ── Modale suppression ── */
+.al-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: alOvFade 0.18s ease;
+}
+@keyframes alOvFade { from { opacity: 0; } to { opacity: 1; } }
+
+.al-confirm {
+  background: var(--color-bg-sidebar);
+  border: 1px solid var(--color-border-hr);
+  border-radius: 18px;
+  padding: 32px 28px 24px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: alConfIn 0.22s ease;
+}
+@keyframes alConfIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+.al-confirm-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.al-confirm h3 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.al-confirm p {
+  margin: 0 0 24px;
+  font-size: 0.88rem;
+  color: var(--color-text-placeholder);
+  line-height: 1.5;
+}
+
+.al-confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.al-confirm-cancel {
+  padding: 9px 20px;
+  border: 1px solid var(--color-border-hr);
+  border-radius: 8px;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.al-confirm-cancel:hover { background: var(--color-border-hr); }
+
+.al-confirm-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #ef4444;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.al-confirm-delete:hover { background: #dc2626; }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .al-cover { display: none; }
+  .al-item  { gap: 12px; }
+  .al-stats { gap: 10px; }
+  .al-stat  { padding: 12px 16px; min-width: 80px; }
+  .al-toolbar { flex-direction: column; align-items: stretch; }
+  .al-filters { justify-content: flex-start; }
+  .al-filter-btn { flex: 1; text-align: center; }
+}

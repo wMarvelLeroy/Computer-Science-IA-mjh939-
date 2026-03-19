@@ -1,0 +1,109 @@
+
+.article-card {
+    background: var(--color-bg-sidebar);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--color-border-hr);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* La carte prend toute la hauteur disponible dans la grille */
+    position: relative;
+  }
+  
+  /* Effet Hover */
+  .article-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    border-color: transparent;
+  }
+  
+  .card-image-wrapper {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+  }
+  
+  .card-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .article-card:hover .card-image-wrapper img {
+    transform: scale(1.05);
+  }
+  
+  .card-category {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #000;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 2;
+  }
+  
+  .card-content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex: 1; 
+  }
+  
+  .card-content h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--color-text-primary);
+    line-height: 1.4;
+  }
+  
+  .card-desc {
+    font-size: 0.95rem;
+    color: var(--color-text-placeholder);
+    margin-bottom: 24px;
+    line-height: 1.6;
+    flex: 1;
+  }
+  
+  .card-author-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    padding: 0;
+    margin-bottom: 10px;
+    font-size: 0.82rem;
+    color: var(--color-text-placeholder);
+    cursor: pointer;
+    transition: color 0.15s;
+    align-self: flex-start;
+  }
+  .card-author-btn .material-icons {
+    font-size: 14px;
+  }
+  .card-author-btn:hover {
+    color: var(--color-accent);
+  }
+
+  .card-link {
+    color: var(--color-accent);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+    align-self: flex-start;
+  }
+
+  .card-link:hover {
+    color: var(--color-text-primary);
+    text-decoration: underline;
+  }

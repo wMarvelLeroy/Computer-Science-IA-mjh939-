@@ -1,0 +1,228 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Quicksand:wght@300..700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Quicksand', sans-serif;
+}
+
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url('https://fonts.gstatic.com/s/materialicons/v140/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2') format('woff2');
+  font-display: block; 
+}
+
+body{
+  line-height: 1.7;
+}
+
+ul{
+  list-style-type: none;
+}
+
+a{
+  text-decoration: none;
+}
+
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Light theme colors */
+:root {
+  --color-text-primary: #1F2936;
+  --color-text-placeholder: #798EAE;
+  --color-card: #FFFFFF;
+  --color-bg-primary: #f9fafb;
+  --color-bg-secondary: #ECECFD;
+  --color-bg-sidebar: #FFFFFF;
+  --color-border-hr: #E2E8F0;
+  --color-hover-primary: #10b981;
+  --color-hover-secondary: #e2e2fb;
+  --color-shadow: rgba(0, 0, 0, 0.05);
+  /* Green accent colors */
+  --color-accent: #10b981;
+  --color-accent-hover: #059669;
+  --color-accent-light: #d1fae5;
+  /* Red accent colors */
+  --color-accent-red: #ef4444;
+  --color-accent-red-hover: #dc2626;
+  
+  --color-gold: #ffc23d;
+}
+
+/* Dark theme colors */
+.container.dark {
+  --color-text-primary: #F1F5F9;
+  --color-text-placeholder: #A6B7D2;
+  --color-card: #1F2937;
+  --color-bg-primary: #111827;
+  --color-bg-secondary: #3D4859;
+  --color-bg-sidebar: #1f2937;
+  --color-border-hr: #3B475C;
+  --color-hover-secondary: #48566a;
+  --color-shadow: rgba(0, 0, 0, 0.3);
+}
+
+.container {
+  width: 100vw;
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+  display: flex; 
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 270px;
+  margin-top: 70px !important;
+  transition: margin-left 0.4s ease;
+  min-width: 0;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  overflow-x: hidden;
+}
+
+.sidebar.collapsed ~ .main-content {
+  margin-left: 90px;
+}
+
+.footer {
+  margin-bottom: 0;
+}
+
+/* Responsive */
+@media (max-width: 750px) {
+  .main-content {
+    margin-left: 0 !important;
+  }
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end; /* Aligne le bas du texte */
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--color-border-hr);
+}
+
+.section-title {
+  font-size: 1.8rem;
+  color: var(--color-text-primary);
+  margin: 0;
+  font-weight: 700;
+}
+
+.section-card {
+    background: var(--color-bg-sidebar);
+    border: 1px solid var(--color-border-hr);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.section-card h3 {
+    font-size: 1.3rem;
+    color: var(--color-text-primary);
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.section-header h3 {
+    font-size: 1.3rem;
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .section-card {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 600px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+.fadeInContainer {
+  animation: fadeInContainer 0.6s ease-out forwards;
+}
+
+@keyframes fadeInContainer {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.page{
+  padding: 40px 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+}
+
+@media (max-width: 320px) {
+  .page {
+    padding: 15px 10px;
+  }
+}
+@media (max-width: 480px) {
+  .page {
+    padding: 20px 15px;
+  }
+}
+@media (max-width: 768px) {
+  .page {
+    padding: 30px 20px;
+  }
+}
+
+/* BOUTONS */
+.btn {
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    border: 2px solid var(--color-border-hr);
+    border-radius: 8px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn:hover {
+    background: var(--color-accent);
+    color: var(--color-text-primary);
+}
+
+.btn-primary {
+  cursor: pointer;
+  background-color: var(--color-accent);
+  color: var(--color-text-primary);
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-accent);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--color-shadow);
+}

@@ -1,0 +1,196 @@
+.top-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: var(--color-bg-sidebar);
+  border-bottom: 1px solid var(--color-border-hr);
+  box-shadow: 0 2px 4px var(--color-shadow);
+  display: flex;
+  align-items: center;
+  padding: 0 24px 0 95px;
+  gap: 20px;
+  z-index: 20;
+  justify-content: space-between;
+}
+
+/* Bouton hamburger mobile */
+.mobile-menu-btn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.mobile-menu-btn:hover {
+  background: var(--color-hover-secondary);
+}
+
+/* Logo dans la navbar — visible uniquement quand sidebar collapsed */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  flex-shrink: 0;
+}
+
+.navbar-logo.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.navbar-logo img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.navbar-brand {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+/* Barre de recherche centrale */
+.navbar-search {
+  flex: 1;
+  max-width: 560px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+  /* Allow search dropdown to overflow navbar bounds */
+  overflow: visible;
+  position: relative;
+}
+
+/* Actions à droite */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Boutons d'action (icônes) */
+.navbar-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.navbar-btn:hover {
+  background: var(--color-hover-secondary);
+}
+
+.navbar-btn .material-icons {
+  font-size: 22px;
+}
+
+/* Bouton avatar — forme circulaire, anneau au hover */
+.navbar-btn--avatar {
+  border-radius: 50%;
+  background: transparent;
+  padding: 0;
+  overflow: hidden;
+}
+
+.navbar-btn--avatar:hover {
+  background: transparent;
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+/* Bouton recherche mobile — caché sur desktop */
+.search-mobile-btn {
+  display: none;
+}
+
+/* Badge (notifications) */
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--color-accent);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* ── RESPONSIVE ── */
+
+/* Tablette et moins */
+@media (max-width: 768px) {
+  .top-navbar {
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  .navbar-search {
+    display: none;
+  }
+
+  .search-mobile-btn {
+    display: flex;
+  }
+
+  .navbar-logo {
+    /* Sur mobile, toujours visible pour identifier le site */
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* Mobile étroit */
+@media (max-width: 480px) {
+  .top-navbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .navbar-brand {
+    display: none;
+  }
+
+  .navbar-btn,
+  .mobile-menu-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .navbar-btn .material-icons,
+  .mobile-menu-btn .material-icons {
+    font-size: 20px;
+  }
+}

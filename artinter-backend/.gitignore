@@ -1,0 +1,14 @@
+# ── Dépendances ──────────────────────────────────────
+node_modules/
+
+# ── Variables d'environnement (SECRETS) ──────────────
+.env
+.env.local
+.env.*.local
+
+# ── Logs ─────────────────────────────────────────────
+logs/
+*.log
+
+# ── Divers ────────────────────────────────────────────
+.DS_Store

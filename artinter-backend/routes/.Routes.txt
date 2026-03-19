@@ -1,0 +1,51 @@
+RÉSUMÉ DE TOUTES LES ROUTES
+
+AUTHENTIFICATION
+POST   /api/auth/signup
+POST   /api/auth/signin
+GET    /api/auth/user
+
+PROFILS
+GET    /api/profils
+GET    /api/profils/:userId
+PUT    /api/profils/:userId
+
+DEMANDES AUTEUR
+POST   /api/demandes-auteur
+GET    /api/demandes-auteur
+GET    /api/demandes-auteur/user/:userId
+POST   /api/demandes-auteur/:id/approuver
+POST   /api/demandes-auteur/:id/refuser
+
+ARTICLES
+GET    /api/articles
+GET    /api/articles/slug/:slug
+GET    /api/articles/auteur/:auteurId
+POST   /api/articles
+PUT    /api/articles/:id
+DELETE /api/articles/:id
+
+COMMENTAIRES
+GET    /api/commentaires/article/:articleId
+POST   /api/commentaires
+PUT    /api/commentaires/:id
+DELETE /api/commentaires/:id
+
+LIKES
+GET    /api/likes/article/:articleId
+POST   /api/likes
+DELETE /api/likes
+
+CATÉGORIES
+GET    /api/categories
+POST   /api/categories
+PUT    /api/categories/:id
+DELETE /api/categories/:id
+
+AUTEURS
+GET    /api/auteurs
+GET    /api/auteurs/:id
+
+STATISTIQUES
+GET    /api/stats
+GET    /api/stats/article/:articleId
