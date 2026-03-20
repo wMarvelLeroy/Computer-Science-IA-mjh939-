@@ -24,23 +24,20 @@ CREATE TYPE public.user_role AS ENUM (
 -- Name: approuver_demande_auteur(uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.approuver_demande_auteur(demande_id uuid) RETURNS json
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
+CREATE OR REPLACE FUNCTION public.approuver_demande_auteur(demande_id uuid)
+RETURNS json LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
   v_user_id UUID;
   v_auteur_id UUID;
   v_result JSON;
 BEGIN
-  -- 1. Vérifier que c'est un admin
   IF NOT EXISTS (
-    SELECT 1 FROM profils 
-    WHERE id = auth.uid() AND role = 'admin'
+    SELECT 1 FROM profils
+    WHERE id = auth.uid() AND role IN ('admin', 'super_admin')
   ) THEN
-    RAISE EXCEPTION 'Non autorisé - vous devez être admin';
+    RAISE EXCEPTION 'Non autorisé - vous devez être admin ou super_admin';
   END IF;
 
-  -- 2. Récupérer le user_id de la demande
   SELECT user_id INTO v_user_id
   FROM demandes_auteur
   WHERE id = demande_id AND statut = 'en_attente';
@@ -49,38 +46,25 @@ BEGIN
     RAISE EXCEPTION 'Demande non trouvée ou déjà traitée';
   END IF;
 
-  -- 3. Vérifier que l'user n'est pas déjà auteur
   IF EXISTS (
-    SELECT 1 FROM profils 
+    SELECT 1 FROM profils
     WHERE id = v_user_id AND auteur_id IS NOT NULL
   ) THEN
     RAISE EXCEPTION 'Cet utilisateur est déjà auteur';
   END IF;
 
-  -- 4. Créer l'entrée dans la table auteurs
   INSERT INTO auteurs (est_valide)
   VALUES (true)
   RETURNING id INTO v_auteur_id;
 
-  RAISE NOTICE 'Auteur créé avec ID: %', v_auteur_id;
-
-  -- 5. Mettre à jour le profil
   UPDATE profils
-  SET 
-    role = 'auteur', 
-    auteur_id = v_auteur_id
+  SET role = 'auteur', auteur_id = v_auteur_id
   WHERE id = v_user_id;
 
-  RAISE NOTICE 'Profil mis à jour pour user: %', v_user_id;
-
-  -- 6. Mettre à jour la demande
   UPDATE demandes_auteur
   SET statut = 'approuvee', updated_at = NOW()
   WHERE id = demande_id;
 
-  RAISE NOTICE 'Demande approuvée: %', demande_id;
-
-  -- 7. Retourner le résultat
   v_result := json_build_object(
     'success', true,
     'user_id', v_user_id,
@@ -131,16 +115,14 @@ $$;
 -- Name: refuser_demande_auteur(uuid); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.refuser_demande_auteur(demande_id uuid) RETURNS void
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
+CREATE OR REPLACE FUNCTION public.refuser_demande_auteur(demande_id uuid)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
 BEGIN
-  -- Vérifier que l'utilisateur actuel est admin
   IF NOT EXISTS (
-    SELECT 1 FROM profils 
-    WHERE id = auth.uid() AND role = 'admin'
+    SELECT 1 FROM profils
+    WHERE id = auth.uid() AND role IN ('admin', 'super_admin')
   ) THEN
-    RAISE EXCEPTION 'Non autorisé';
+    RAISE EXCEPTION 'Non autorisé - vous devez être admin ou super_admin';
   END IF;
 
   UPDATE demandes_auteur
