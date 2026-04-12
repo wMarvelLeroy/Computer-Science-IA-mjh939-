@@ -16,7 +16,7 @@ function ResetPassword() {
   const [accessToken, setAccessToken]     = useState(null);
   const navigate = useNavigate();
 
-  // Supabase envoie le token dans le hash de l'URL : #access_token=xxx&type=recovery
+  // token dans le hash (Supabase recovery)
   useEffect(() => {
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
@@ -25,7 +25,6 @@ function ResetPassword() {
 
     if (token && type === 'recovery') {
       setAccessToken(token);
-      // Nettoyer le hash de l'URL sans recharger la page
       window.history.replaceState(null, '', window.location.pathname);
     } else {
       setError('Lien invalide ou expiré. Recommencez la procédure.');

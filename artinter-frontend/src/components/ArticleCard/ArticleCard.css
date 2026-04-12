@@ -1,17 +1,18 @@
 
 .article-card {
     background: var(--color-bg-sidebar);
+    color: var(--color-text-primary);
+    text-decoration: none;
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid var(--color-border-hr);
     transition: transform 0.3s, box-shadow 0.3s;
     display: flex;
     flex-direction: column;
-    height: 100%; /* La carte prend toute la hauteur disponible dans la grille */
+    height: 100%;
     position: relative;
   }
   
-  /* Effet Hover */
   .article-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 12px 24px rgba(0,0,0,0.1);
@@ -49,6 +50,21 @@
     z-index: 2;
   }
   
+  .card-category-text {
+    display: inline-block;
+    background: var(--color-accent);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    align-self: flex-start;
+  }
+
   .card-content {
     padding: 24px;
     display: flex;

@@ -34,7 +34,6 @@ function ArticlesList() {
         navigate('/dashboard/lecteur'); return;
       }
       const res = await getArticlesByAuteur(user.id);
-      // Trier par date décroissante
       const sorted = (res.data || []).sort(
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
@@ -174,8 +173,8 @@ function ArticlesList() {
                 <h4 className="al-item-title">{article.titre}</h4>
                 <div className="al-item-meta">
                   <StatusBadge status={article.est_publie ? 'publié' : 'brouillon'} />
-                  {article.categorie && (
-                    <span className="al-meta-chip">{article.categorie}</span>
+                  {article.categories?.nom && (
+                    <span className="al-meta-chip">{article.categories.nom}</span>
                   )}
                   <span className="al-meta-item">
                     <FontAwesomeIcon icon={faEye} />

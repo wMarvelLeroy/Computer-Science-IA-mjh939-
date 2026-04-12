@@ -6,6 +6,7 @@ import {
 } from '../../../api/api.js';
 import { useAuth } from '../../../contexts/AuthContext.jsx';
 import Loader from '../../../components/Loader/Loader.jsx';
+import ConfirmModal from '../../../components/Modal/ConfirmModal.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUserPlus, faUserMinus, faRightToBracket,
@@ -32,8 +33,8 @@ function lighten(hex, amount = 50) {
 }
 
 function bannerStyle(couleur) {
-  const base = couleur || '#10b981';
-  return { background: `linear-gradient(135deg, ${base}, ${lighten(base, 50)})` };
+  const base = couleur || '#64748b';
+  return { background: `linear-gradient(135deg, ${base}, ${lighten(base, 40)})` };
 }
 
 function avatarBg(couleur) {
@@ -73,11 +74,11 @@ const OtherProfil = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
   const [showLoginHint, setShowLoginHint] = useState(false);
+  const [showUnfollowModal, setShowUnfollowModal] = useState(false);
   const [loading,     setLoading]     = useState(true);
   const [notFound,    setNotFound]    = useState(false);
   const [page,        setPage]        = useState(1);
 
-  // Rediriger vers le profil personnel si c'est le sien
   useEffect(() => {
     if (user?.id && userId && user.id === userId) {
       navigate('/profile', { replace: true });
@@ -220,11 +221,11 @@ const OtherProfil = () => {
                 {isFollowing ? (
                   <button
                     className="op-follow-btn op-follow-btn--following"
-                    onClick={handleUnfollow}
+                    onClick={() => setShowUnfollowModal(true)}
                     disabled={followLoading}
                   >
                     <FontAwesomeIcon icon={faUserMinus} />
-                    Ne plus suivre
+                    Abonné
                   </button>
                 ) : (
                   <button
@@ -233,7 +234,7 @@ const OtherProfil = () => {
                     disabled={followLoading}
                   >
                     <FontAwesomeIcon icon={faUserPlus} />
-                    Suivre
+                    S'abonner
                   </button>
                 )}
 
@@ -328,12 +329,14 @@ const OtherProfil = () => {
                   const image = article.images?.[0];
                   return (
                     <Link key={article.id} to={`/article/${article.slug}`} className="op-article-card">
-                      <div className="op-card-img">
-                        {image && !image.startsWith('#')
-                          ? <img src={image} alt={article.titre} />
-                          : <div style={{ background: image || 'var(--color-bg-secondary)', width: '100%', height: '100%' }} />
-                        }
-                      </div>
+                      {image && (
+                        <div className="op-card-img">
+                          {image.startsWith('#')
+                            ? <div style={{ background: image, width: '100%', height: '100%' }} />
+                            : <img src={image} alt={article.titre} />
+                          }
+                        </div>
+                      )}
                       <div className="op-card-body">
                         {article.categories?.nom && (
                           <span className="op-card-cat">{article.categories.nom}</span>
@@ -371,6 +374,17 @@ const OtherProfil = () => {
           )}
         </div>
       )}
+
+      {/* ── Modal confirmation désabonnement ── */}
+      <ConfirmModal
+        isOpen={showUnfollowModal}
+        onClose={() => setShowUnfollowModal(false)}
+        onConfirm={() => { setShowUnfollowModal(false); handleUnfollow(); }}
+        title="Se désabonner"
+        message={`Voulez-vous vous désabonner de ${profil?.nom} ?`}
+        confirmText="Se désabonner"
+        isDanger={true}
+      />
 
       {/* ── Overlay connexion requise ── */}
       {showLoginHint && !user && (

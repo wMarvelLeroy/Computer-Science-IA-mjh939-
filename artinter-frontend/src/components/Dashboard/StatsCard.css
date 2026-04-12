@@ -1,56 +1,24 @@
 .stats-card {
     background: var(--color-bg-sidebar);
     border: 1px solid var(--color-border-hr);
+    border-top: 3px solid var(--color-accent);
     border-radius: 12px;
     padding: 24px;
     display: flex;
     align-items: center;
     gap: 20px;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.stats-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--color-accent);
-    transition: width 0.3s ease;
+    transition: box-shadow 0.2s;
 }
 
 .stats-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px var(--color-shadow);
 }
 
-.stats-card:hover::before {
-    width: 8px;
-}
-
-/* Color variants */
-.stats-card-blue::before {
-    background: #3b82f6;
-}
-
-.stats-card-green::before {
-    background: var(--color-accent);
-}
-
-.stats-card-orange::before {
-    background: #f59e0b;
-}
-
-.stats-card-red::before {
-    background: #ef4444;
-}
-
-.stats-card-purple::before {
-    background: #8b5cf6;
-}
+.stats-card-blue   { border-top-color: #3b82f6; }
+.stats-card-green  { border-top-color: var(--color-accent); }
+.stats-card-orange { border-top-color: #f59e0b; }
+.stats-card-red    { border-top-color: #ef4444; }
+.stats-card-purple { border-top-color: #8b5cf6; }
 
 .stats-icon {
     font-size: 2.5rem;

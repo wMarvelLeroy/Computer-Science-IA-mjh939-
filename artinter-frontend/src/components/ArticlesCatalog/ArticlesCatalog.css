@@ -1,8 +1,4 @@
-/* =========================================================
-   ArticlesCatalog.css — Hub de découverte
-   ========================================================= */
-
-/* ── Page ── */
+/* Page */
 .catalog-page {
   display: flex;
   flex-direction: column;
@@ -10,7 +6,7 @@
   padding-bottom: 48px;
 }
 
-/* ── Header ── */
+/* Header */
 .catalog-header {
   display: flex;
   flex-direction: column;
@@ -30,7 +26,7 @@
   margin: 0;
 }
 
-/* ── Search bar ── */
+/* Search bar */
 .cat-search-bar {
   display: flex;
   align-items: center;
@@ -81,7 +77,7 @@
   background: var(--color-hover-secondary);
 }
 
-/* ── Tabs ── */
+/* Tabs */
 .cat-tabs {
   display: flex;
   gap: 4px;
@@ -137,12 +133,12 @@
   text-align: center;
 }
 
-/* ── Content ── */
+/* Content */
 .cat-content {
   min-height: 200px;
 }
 
-/* ── Articles tab — filters box ── */
+/* Filters */
 .cat-filters-box {
   display: flex;
   flex-direction: column;
@@ -481,7 +477,7 @@
   font-size: 20px;
 }
 
-/* ── Articles grid ── */
+/* Articles grid */
 .cat-articles-grid {
   display: grid;
   gap: 28px;
@@ -496,7 +492,7 @@
   gap: 16px;
 }
 
-/* ── Persons grid (auteurs) ── */
+/* Persons grid */
 .cat-persons-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -566,12 +562,12 @@
   color: var(--color-text-placeholder);
   margin: 2px 0 0;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* ── Categories grid ── */
+/* Categories grid */
 .cat-cats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -631,12 +627,12 @@
   color: var(--color-text-placeholder);
   margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* ── Tags grid ── */
+/* Tags grid */
 .cat-tags-grid {
   display: flex;
   flex-wrap: wrap;
@@ -681,7 +677,7 @@
   transition: background 0.15s;
 }
 
-/* ── Empty state ── */
+/* Empty state */
 .cat-empty {
   display: flex;
   flex-direction: column;
@@ -702,7 +698,7 @@
   margin: 0;
 }
 
-/* ── Responsive ── */
+/* Responsive */
 @media (max-width: 768px) {
   .catalog-header h1 {
     font-size: 1.6rem;
@@ -780,7 +776,7 @@
   }
 }
 
-/* ── Pagination ──────────────────────────────────────────────────────────── */
+/* Pagination */
 
 .cat-pagination {
   display: flex;

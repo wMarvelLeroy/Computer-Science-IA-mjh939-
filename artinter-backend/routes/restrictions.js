@@ -20,7 +20,6 @@ router.post('/', requireAuth, async (req, res) => {
       .select().single();
     if (error) throw error;
 
-    // Créer une notification pour l'utilisateur restreint
     const dureeText = duree_jours ? `pour ${duree_jours} jour(s)` : 'pour une durée indéfinie';
     await supabase.from('notifications').insert([{
       user_id,
@@ -29,7 +28,6 @@ router.post('/', requireAuth, async (req, res) => {
       message: `Motif : ${motif}${details ? `\n\nDétails : ${details}` : ''}\n\nDurée : ${dureeText}`
     }]);
 
-    // Récupérer le nom de l'utilisateur pour le journal
     const { data: cible } = await supabase.from('profils').select('nom').eq('id', user_id).single();
     await logAdminAction(req.user.id, 'restriction_imposee', 'restrictions', data.id, {
       user_id,
@@ -72,7 +70,6 @@ router.put('/:id/lever', requireAuth, async (req, res) => {
       .select().single();
     if (error) throw error;
 
-    // Notifier l'utilisateur
     await supabase.from('notifications').insert([{
       user_id: data.user_id,
       type: 'restriction_levee',
@@ -80,7 +77,6 @@ router.put('/:id/lever', requireAuth, async (req, res) => {
       message: 'Votre compte a été rétabli et vous pouvez à nouveau accéder à toutes les fonctionnalités.'
     }]);
 
-    // Récupérer le nom de l'utilisateur pour le journal
     const { data: cible } = await supabase.from('profils').select('nom').eq('id', data.user_id).single();
     await logAdminAction(req.user.id, 'restriction_levee', 'restrictions', data.id, {
       user_id: data.user_id,

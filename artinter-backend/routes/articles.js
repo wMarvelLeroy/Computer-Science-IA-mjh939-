@@ -3,10 +3,8 @@ import { supabase } from '../config/supabase.js';
 import multer from 'multer';
 import { requireAuth, isAdmin, isSuperAdmin } from '../middleware/auth.js';
 
-// ── Notifier les abonnés lors de la publication d'un article ─────────────────
 async function notifyFollowers(authorId, articleTitre, articleSlug) {
   try {
-    // Récupérer le nom de l'auteur
     const { data: auteur } = await supabase
       .from('profils')
       .select('nom')
@@ -15,7 +13,6 @@ async function notifyFollowers(authorId, articleTitre, articleSlug) {
 
     const nomAuteur = auteur?.nom || 'Un auteur';
 
-    // Récupérer tous les abonnés de l'auteur
     const { data: suivis } = await supabase
       .from('suivis')
       .select('follower_id')
@@ -23,7 +20,6 @@ async function notifyFollowers(authorId, articleTitre, articleSlug) {
 
     if (!suivis || suivis.length === 0) return;
 
-    // Insérer une notification pour chaque abonné
     const notifications = suivis.map(s => ({
       user_id: s.follower_id,
       type:    'nouvel_article',
@@ -71,7 +67,7 @@ router.get('/', async (req, res) => {
         ),
         categories(id, nom, slug)
       `)
-      .eq('est_publie', true) // FORCÉ : Public = Publié
+      .eq('est_publie', true)
       .order('date_publication', { ascending: false })
       .limit(limit);
 
@@ -118,7 +114,7 @@ router.get('/brouillons', requireAuth, async (req, res) => {
         categories(id, nom, slug)
       `)
       .eq('est_publie', false)
-      .eq('id_auteur', userId) // STRICT : Uniquement mes brouillons
+      .eq('id_auteur', userId)
       .order('created_at', { ascending: false });
 
     const { data, error } = await query;
@@ -228,7 +224,6 @@ router.put('/admin/:id/republier', requireAuth, async (req, res) => {
       .single();
     if (error) throw error;
 
-    // Notifier les abonnés de l'auteur à la republication
     notifyFollowers(data.id_auteur, data.titre, data.slug);
 
     res.json({ success: true, data });
@@ -283,15 +278,12 @@ router.get('/slug/:slug', async (req, res) => {
 
     if (error) return res.status(404).json({ success: false, error: 'Article non trouvé' });
 
-    // VÉRIFICATION STRICTE DE VISIBILITÉ
-    // Exception: Si c'est l'auteur qui regarde (via token), on autorise la vue même si non publié (Preview)
     const isAuteur = user && user.id === data.id_auteur;
-    
+
     if (!data.est_publie && !isAuteur) {
         return res.status(404).json({ success: false, error: 'Article non trouvé ou non publié' });
     }
 
-    // Incrémenter les vues : uniquement si non-auteur ET record_view=1 (première visite de session)
     if (!isAuteur && req.query.record_view === '1') {
         await supabase.rpc('increment_vues', { article_id: data.id });
     }
@@ -338,14 +330,12 @@ router.get('/:id', async (req, res) => {
 
     if (error) return res.status(404).json({ success: false, error: 'Article non trouvé' });
 
-    // VÉRIFICATION STRICTE DE VISIBILITÉ
     const isAuteur = user && user.id === data.id_auteur;
 
     if (!data.est_publie && !isAuteur) {
         return res.status(404).json({ success: false, error: 'Article non trouvé ou non publié' });
     }
 
-    // Incrémenter les vues : uniquement si non-auteur ET record_view=1
     if (!isAuteur && req.query.record_view === '1') {
         await supabase.rpc('increment_vues', { article_id: id });
     }
@@ -384,7 +374,6 @@ router.get('/auteur/:auteurId', async (req, res) => {
       .eq('id_auteur', auteurId)
       .order('created_at', { ascending: false });
 
-    // Si ce n'est pas l'auteur lui-même, on ne montre que les publiés
     if (!isOwnProfile) {
          query = query.eq('est_publie', true);
     }
@@ -405,17 +394,23 @@ router.post('/', requireAuth, async (req, res) => {
       images, categorie, temps_lecture, tags, est_publie
     } = req.body;
     
-    const id_auteur = req.user.id; // From token
-    const role = req.profil?.role;
+    const userId = req.user.id;
+    const role   = req.profil?.role;
 
     if (role !== 'auteur' && role !== 'admin' && role !== 'super_admin') {
-         return res.status(403).json({ success: false, error: 'Non autorisé' });
+      return res.status(403).json({ success: false, error: 'Non autorisé' });
     }
 
-    // Validation
     if (!titre || !titre.trim()) return res.status(400).json({ success: false, error: 'Titre requis' });
 
-    // Slug gen
+    // S'assurer que l'utilisateur a bien une entrée dans auteurs (nécessaire pour la FK)
+    let id_auteur = req.profil?.auteur_id || userId;
+    if (!req.profil?.auteur_id) {
+      await supabase.from('auteurs').upsert([{ id: userId, est_valide: true }], { onConflict: 'id' });
+      await supabase.from('profils').update({ auteur_id: userId }).eq('id', userId);
+      id_auteur = userId;
+    }
+
     let finalSlug = slug;
     if (!finalSlug && titre) {
       const { generateSlug } = await import('../utils/slugGenerator.js');
@@ -424,17 +419,15 @@ router.post('/', requireAuth, async (req, res) => {
       if (existing) finalSlug = `${finalSlug}-${Date.now()}`;
     }
 
-    // Insert
     const insertData = {
       slug: finalSlug,
       titre: titre.trim(),
       contenu_html: contenu_html || '<p></p>',
       contenu_json: contenu_json || null,
       images: images || [],
-      id_auteur, // Forced from token
+      id_auteur,
       est_publie: est_publie || false,
-      date_publication: (est_publie) ? new Date().toISOString() : null, // Set publication date if published immediately
-      // Optional
+      date_publication: est_publie ? new Date().toISOString() : null,
       ...(categorie && { categorie }),
       ...(temps_lecture && { temps_lecture }),
       ...(tags && { tags })
@@ -448,7 +441,6 @@ router.post('/', requireAuth, async (req, res) => {
 
     if (error) throw error;
 
-    // Notifier les abonnés si l'article est publié directement à la création
     if (est_publie) notifyFollowers(id_auteur, data.titre, data.slug);
 
     res.status(201).json({ success: true, data });
@@ -464,23 +456,20 @@ router.put('/:id', requireAuth, async (req, res) => {
     const updateData = req.body;
     const userId = req.user.id;
 
-    // Verify ownership STRICT
     const { data: article } = await supabase.from('articles').select('id_auteur').eq('id', id).single();
     if (!article) return res.status(404).json({ success: false, error: 'Article non trouvé' });
-    
+
     if (article.id_auteur !== userId) {
         return res.status(403).json({ success: false, error: 'Non autorisé' });
     }
 
-    // Clean data
     const cleanData = {};
     for (const [key, value] of Object.entries(updateData)) {
-      if (value !== undefined && key !== 'id' && key !== 'id_auteur' && key !== 'created_at' && key !== 'description' && key !== 'image_url') { 
+      if (value !== undefined && key !== 'id' && key !== 'id_auteur' && key !== 'created_at' && key !== 'description' && key !== 'image_url') {
         cleanData[key] = value;
       }
     }
-    
-    // Always update updated_at
+
     cleanData.updated_at = new Date().toISOString();
 
     const { data, error } = await supabase
@@ -522,7 +511,6 @@ router.put('/:id/publier', requireAuth, async (req, res) => {
 
     if (error) throw error;
 
-    // Notifier les abonnés de l'auteur
     notifyFollowers(userId, data.titre, data.slug);
 
     res.json({ success: true, data });
@@ -554,7 +542,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
 });
 
 // POST /api/articles/upload-image - Upload
-router.post('/upload-image', upload.single('image'), async (req, res) => {
+router.post('/upload-image', requireAuth, upload.single('image'), async (req, res) => {
   try {
     const file = req.file;
     if (!file) return res.status(400).json({ success: false, error: 'Fichier manquant' });

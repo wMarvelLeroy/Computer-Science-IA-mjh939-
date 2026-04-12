@@ -37,10 +37,7 @@ router.post('/signin', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // ⚠️ IMPORTANT: Créer un client temporaire pour l'authentification
-    // Si on utilise le client global 'supabase' (admin), signInWithPassword va modifier son état
-    // et les requêtes suivantes se feront avec le token de l'utilisateur (déclenchant les RLS)
-    // au lieu d'utiliser la clé Service Role (qui contourne les RLS).
+    // Client temporaire pour ne pas contaminer le client admin global avec la session utilisateur
     const { createClient } = await import('@supabase/supabase-js');
     const tempClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY, {
       auth: {
@@ -58,7 +55,6 @@ router.post('/signin', async (req, res) => {
       return res.status(401).json({ success: false, error: authError.message });
     }
 
-    // Récupérer le profil utilisateur avec le client ADMIN (bypasses RLS)
     const { data: profil, error: profilError } = await supabase
       .from('profils')
       .select('*')
@@ -147,13 +143,11 @@ router.post('/reset-password', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Le mot de passe doit contenir au moins 6 caractères' });
     }
 
-    // Vérifier le token et récupérer l'utilisateur
     const { data: { user }, error: userError } = await supabase.auth.getUser(access_token);
     if (userError || !user) {
       return res.status(401).json({ success: false, error: 'Lien expiré ou invalide. Recommencez la procédure.' });
     }
 
-    // Mettre à jour le mot de passe
     const { error } = await supabase.auth.admin.updateUserById(user.id, { password });
     if (error) return res.status(400).json({ success: false, error: error.message });
 

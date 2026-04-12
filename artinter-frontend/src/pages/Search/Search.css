@@ -1,15 +1,11 @@
-/* =========================================================
-   Search.css — Page de résultats de recherche
-   ========================================================= */
-
-.srp-page {
+﻿.srp-page {
   display: flex;
   flex-direction: column;
   gap: 28px;
   padding-bottom: 48px;
 }
 
-/* ── Header ────────────────────────────────────────────────────────────────── */
+/* Header */
 .srp-header {
   display: flex;
   flex-direction: column;
@@ -72,7 +68,7 @@
   color: var(--color-text-primary);
 }
 
-/* ── Tabs ───────────────────────────────────────────────────────────────────── */
+/* Tabs */
 .srp-tabs {
   display: flex;
   gap: 4px;
@@ -133,12 +129,12 @@
   text-align: center;
 }
 
-/* ── Content area ───────────────────────────────────────────────────────────── */
+/* Content area */
 .srp-content {
   min-height: 200px;
 }
 
-/* ── Section (tab "Tout") ───────────────────────────────────────────────────── */
+/* Section (tab "Tout") */
 .srp-section {
   margin-bottom: 36px;
 }
@@ -186,7 +182,7 @@
   background: var(--color-bg-secondary);
 }
 
-/* ── Articles grid ──────────────────────────────────────────────────────────── */
+/* Articles grid */
 .srp-articles-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -353,7 +349,7 @@
   flex-shrink: 0;
 }
 
-/* ── Persons grid (auteurs + profils) ───────────────────────────────────────── */
+/* Persons grid (auteurs + profils) */
 .srp-persons-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -429,7 +425,7 @@
   overflow: hidden;
 }
 
-/* ── Categories grid ────────────────────────────────────────────────────────── */
+/* Categories grid */
 .srp-cats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -493,7 +489,7 @@
   overflow: hidden;
 }
 
-/* ── Tags ───────────────────────────────────────────────────────────────────── */
+/* Tags */
 .srp-tags-grid {
   display: flex;
   flex-wrap: wrap;
@@ -540,7 +536,7 @@
 
 .srp-tags-tab {}
 
-/* ── Empty state ────────────────────────────────────────────────────────────── */
+/* Empty state */
 .srp-empty {
   display: flex;
   flex-direction: column;
@@ -561,7 +557,7 @@
   margin: 0;
 }
 
-/* ── Responsive ─────────────────────────────────────────────────────────────── */
+/* Responsive */
 @media (max-width: 768px) {
   .srp-tabs {
     gap: 0;

@@ -1,6 +1,4 @@
-/* ==========================================
-   CATEGORY REQUESTS — Dashboard Auteur
-   ========================================== */
+﻿/* CATEGORY REQUESTS — Dashboard Auteur */
 
 .cr-page {
   display: flex;
@@ -8,7 +6,7 @@
   gap: 24px;
 }
 
-/* ── Header ── */
+/* Header */
 .cr-header {
   display: flex;
   align-items: flex-start;
@@ -47,7 +45,7 @@
 }
 .cr-new-btn:hover { background: var(--color-accent-hover); transform: translateY(-1px); }
 
-/* ── Toast ── */
+/* Toast */
 .cr-toast {
   display: flex;
   align-items: center;
@@ -68,7 +66,7 @@
   color: #10b981;
 }
 
-/* ── Formulaire ── */
+/* Formulaire */
 .cr-form-card {
   background: var(--color-bg-sidebar);
   border: 1px solid var(--color-border-hr);
@@ -204,7 +202,7 @@
 .cr-btn-submit:hover:not(:disabled) { background: var(--color-accent-hover); }
 .cr-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
-/* ── Section ── */
+/* Section */
 .cr-section {
   background: var(--color-bg-sidebar);
   border: 1px solid var(--color-border-hr);
@@ -219,7 +217,7 @@
   margin: 0 0 16px;
 }
 
-/* ── Liste demandes ── */
+/* Liste demandes */
 .cr-list {
   display: flex;
   flex-direction: column;
@@ -303,7 +301,7 @@
 .cr-delete-btn:hover:not(:disabled) { background: #ef4444; border-color: #ef4444; color: white; }
 .cr-delete-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* ── Catégories existantes ── */
+/* Catégories existantes */
 .cr-cats-grid {
   display: flex;
   flex-wrap: wrap;
@@ -320,7 +318,7 @@
   font-weight: 500;
 }
 
-/* ── Empty ── */
+/* Empty */
 .cr-empty {
   display: flex;
   flex-direction: column;
@@ -333,7 +331,7 @@
 .cr-empty-icon { font-size: 2.5rem; opacity: 0.35; }
 .cr-empty p    { margin: 0; font-size: 0.9rem; }
 
-/* ── Responsive ── */
+/* Responsive */
 @media (max-width: 640px) {
   .cr-form-row { grid-template-columns: 1fr; }
   .cr-form-actions { flex-direction: column-reverse; }

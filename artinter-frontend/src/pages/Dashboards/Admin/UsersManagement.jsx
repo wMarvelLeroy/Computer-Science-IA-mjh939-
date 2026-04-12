@@ -12,7 +12,6 @@ import {
 } from '../../../api/api';
 import Loader from '../../../components/Loader/Loader.jsx';
 import Portal from '../../../components/Modal/Portal.jsx';
-import AuthorPreviewCard from '../../../components/AuthorPreviewCard/AuthorPreviewCard.jsx';
 import './AdminPages.css';
 
 export default function UsersManagement() {
@@ -29,7 +28,6 @@ export default function UsersManagement() {
   const [restrictions, setRestrictions]   = useState({}); // { [userId]: restriction | null }
   const [actionLoading, setActionLoading] = useState(false);
   const [toast, setToast]             = useState(null);
-  const [previewAuthorId, setPreviewAuthorId] = useState(null);
 
   useEffect(() => {
     const init = async () => {
@@ -45,7 +43,6 @@ export default function UsersManagement() {
       try {
         const { data: profils } = await getAllProfils();
         setUsers(profils || []);
-        // Charger les restrictions actives pour chaque utilisateur
         const map = {};
         await Promise.all((profils || []).map(async (u) => {
           try {
@@ -85,13 +82,11 @@ export default function UsersManagement() {
       return 0;
     });
 
-  // Opens confirmation modal instead of calling API directly
   const handleRoleChange = (userId, newRole) => {
     const user = users.find(u => u.id === userId);
     setConfirmRoleModal({ user, newRole });
   };
 
-  // Actual role change after confirmation
   const confirmAndChangeRole = async () => {
     if (!confirmRoleModal) return;
     const { user, newRole } = confirmRoleModal;
@@ -269,7 +264,7 @@ export default function UsersManagement() {
                       <div className="admin-user-cell">
                         <button
                           className="admin-avatar admin-avatar-btn"
-                          onClick={() => setPreviewAuthorId(user.id)}
+                          onClick={() => window.open(`/profil/${user.id}`, '_blank')}
                           title="Voir le profil"
                         >
                           {user.avatar_url
@@ -281,7 +276,7 @@ export default function UsersManagement() {
                           <strong>
                             <button
                               className="admin-user-name-btn"
-                              onClick={() => setPreviewAuthorId(user.id)}
+                              onClick={() => window.open(`/profil/${user.id}`, '_blank')}
                               title="Voir le profil"
                             >
                               {user.nom || 'Sans nom'}
@@ -420,7 +415,7 @@ export default function UsersManagement() {
               Vous êtes sur le point de changer le rôle de <strong>{confirmRoleModal.user.nom}</strong> en{' '}
               <strong>{confirmRoleModal.newRole === 'super_admin' ? 'Super Admin' : confirmRoleModal.newRole === 'admin' ? 'Admin' : confirmRoleModal.newRole === 'auteur' ? 'Auteur' : 'Lecteur'}</strong>.
               {confirmRoleModal.newRole === 'auteur' && ' Un compte auteur sera automatiquement créé.'}
-              {(confirmRoleModal.user.role === 'auteur' && confirmRoleModal.newRole !== 'auteur') && ' Le compte auteur sera supprimé.'}
+              {(confirmRoleModal.user.role === 'auteur' && !['auteur', 'admin', 'super_admin'].includes(confirmRoleModal.newRole)) && ' Le compte auteur sera supprimé.'}
             </p>
             <div className="admin-modal-actions">
               <button className="admin-btn" disabled={actionLoading} onClick={() => setConfirmRoleModal(null)}>Annuler</button>
@@ -501,10 +496,6 @@ export default function UsersManagement() {
       )}
 
       {/* Prévisualisation profil */}
-      <AuthorPreviewCard
-        authorId={previewAuthorId}
-        onClose={() => setPreviewAuthorId(null)}
-      />
 
       {/* Toast */}
       {toast && (

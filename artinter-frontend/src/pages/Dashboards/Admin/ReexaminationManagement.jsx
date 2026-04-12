@@ -4,7 +4,6 @@ import { getCurrentUser, getAllDemandesReexamination, traiterDemandeReexaminatio
 import { useAuth } from '../../../contexts/AuthContext.jsx';
 import Loader from '../../../components/Loader/Loader.jsx';
 import Portal from '../../../components/Modal/Portal.jsx';
-import AuthorPreviewCard from '../../../components/AuthorPreviewCard/AuthorPreviewCard.jsx';
 import ClaimSection, { ClaimBadge } from '../../../components/ClaimSection/ClaimSection.jsx';
 import './AdminPages.css';
 import './Signalements.css';
@@ -51,7 +50,6 @@ export default function ReexaminationManagement() {
   const [cooldown, setCooldown]         = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [toast, setToast]               = useState(null);
-  const [previewAuthorId, setPreviewAuthorId] = useState(null);
   const [claimsMap, setClaimsMap]       = useState({});
 
   const isClaimedByMe = (id) => {
@@ -216,7 +214,7 @@ export default function ReexaminationManagement() {
                 <div className="reex-card-bottom">
                   <button
                     className="reex-card-user"
-                    onClick={e => { e.stopPropagation(); setPreviewAuthorId(d.user_id); }}
+                    onClick={e => { e.stopPropagation(); window.open(`/profil/${d.user_id}`, '_blank'); }}
                     title="Voir le profil"
                   >
                     <div className="reex-card-avatar">
@@ -293,7 +291,7 @@ export default function ReexaminationManagement() {
               <div className="sig-detail-section-title">Demandé par</div>
               <button
                 className="sig-detail-user sig-detail-user-btn"
-                onClick={() => setPreviewAuthorId(selected.user_id)}
+                onClick={() => selected.user_id && window.open(`/profil/${selected.user_id}`, '_blank')}
                 title="Voir le profil"
               >
                 <div className="sig-detail-user-avatar">
@@ -463,7 +461,6 @@ export default function ReexaminationManagement() {
       )}
 
       {/* Prévisualisation profil */}
-      <AuthorPreviewCard authorId={previewAuthorId} onClose={() => setPreviewAuthorId(null)} />
 
       {/* Toast */}
       {toast && (

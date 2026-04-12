@@ -27,6 +27,7 @@ const ArticleEditor = () => {
     const ejInstance = useRef(null);
     const coverInputRef = useRef(null);
     const editorDataRef = useRef({});
+    const titleRef = useRef(null);
     
     const [loading, setLoading] = useState(true);
     const [notAllowed, setNotAllowed] = useState(false);
@@ -46,7 +47,13 @@ const ArticleEditor = () => {
     const [autoSaveStatus, setAutoSaveStatus] = useState(null); // null | 'saving' | 'saved' | 'error'
     const [autoSavedAt, setAutoSavedAt] = useState(null);
     const autoSaveRef = useRef(null); // garde l'id de l'article créé par auto-save
-    
+    const statusRef = useRef('brouillon'); // ref pour accéder au status courant dans les closures
+    const isPublishedRef = useRef(false); // état de publication au chargement, pour initEditor
+
+    // Protection article publié
+    const [editConfirmed, setEditConfirmed] = useState(false);
+    const [showEditConfirmModal, setShowEditConfirmModal] = useState(false);
+
     // UI State
     const [showSettings, setShowSettings] = useState(false);
     const [showQuickMenu, setShowQuickMenu] = useState(false);
@@ -54,18 +61,25 @@ const ArticleEditor = () => {
     const [wordCount, setWordCount] = useState(0);
     const [charCount, setCharCount] = useState(0);
 
-    // New UI State for Preview/Validation
     const [showPreview, setShowPreview] = useState(false);
     const [validationErrors, setValidationErrors] = useState([]);
     const [feedbackModal, setFeedbackModal] = useState({ isOpen: false, title: '', message: '', isError: false });
     const [previewData, setPreviewData] = useState(null);
 
-    // Prompt before closing/refreshing if unsaved
+    useEffect(() => { statusRef.current = status; }, [status]);
+
+    useEffect(() => {
+        if (titleRef.current) {
+            titleRef.current.style.height = 'auto';
+            titleRef.current.style.height = titleRef.current.scrollHeight + 'px';
+        }
+    }, [title]);
+
     useEffect(() => {
         const handleBeforeUnload = (e) => {
             if (hasUnsavedChanges) {
                 e.preventDefault();
-                e.returnValue = ''; // Typical way to trigger browser prompt
+                e.returnValue = '';
             }
         };
 
@@ -73,7 +87,6 @@ const ArticleEditor = () => {
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
     }, [hasUnsavedChanges]);
 
-    // React Router navigation blocker
     const blocker = useBlocker(
         ({ currentLocation, nextLocation }) =>
             hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname
@@ -101,10 +114,11 @@ const ArticleEditor = () => {
             setAutoSaveStatus('saving');
             try {
                 const outputData  = await ejInstance.current.save();
+                if (!outputData?.blocks) { setAutoSaveStatus('error'); return; }
                 const htmlContent = generateHTML(outputData);
                 const contentImages = outputData.blocks
                     .filter(b => b.type === 'image')
-                    .map(b => b.data.url);
+                    .map(b => b.data.file?.url || b.data.url);
                 const allImages = coverUrl
                     ? [coverUrl, ...contentImages.filter(u => u !== coverUrl)]
                     : contentImages;
@@ -112,7 +126,7 @@ const ArticleEditor = () => {
                 const articleData = {
                     titre:        title,
                     categorie:    selectedCategory || null,
-                    est_publie:   false,
+                    est_publie:   statusRef.current === 'publie',
                     contenu_json: outputData,
                     contenu_html: htmlContent || '<p></p>',
                     images:       allImages,
@@ -153,7 +167,6 @@ const ArticleEditor = () => {
     useEffect(() => {
         const init = async () => {
             try {
-                // 1. Check Auth
                 const { data: user } = await getCurrentUser();
                 if (!user) {
                     navigate('/login');
@@ -161,7 +174,6 @@ const ArticleEditor = () => {
                 }
                 setUserId(user.id);
 
-                // 2. Load Categories
                 const { data: cats } = await getAllCategories();
                 setCategories(cats || []);
 
@@ -177,6 +189,8 @@ const ArticleEditor = () => {
                     setSelectedCategory(article.categorie);
                     setCoverUrl(article.image_url || ((article.images && article.images.length > 0) ? article.images[0] : ''));
                     setStatus(article.est_publie ? 'publie' : 'brouillon');
+                    isPublishedRef.current = !!article.est_publie;
+                    setEditConfirmed(false);
                     setTags(article.tags ? article.tags.join(', ') : '');
 
                     if (article.contenu_json) {
@@ -185,7 +199,6 @@ const ArticleEditor = () => {
                         console.warn("No JSON content found, starting fresh.");
                     }
                 } else {
-                    // Pre-fill cover with last published/saved article's cover
                     try {
                         const res = await getArticlesByAuteur(user.id);
                         if (res.success && res.data && res.data.length > 0) {
@@ -200,25 +213,20 @@ const ArticleEditor = () => {
                     }
                 }
                 
-                // Store data for editor init
                 editorDataRef.current = initialData;
 
             } catch (error) {
                 console.error('Error init:', error);
             } finally {
                 setLoading(false);
-                // Reset dirty state after initial load
-                setTimeout(() => setHasUnsavedChanges(false), 500); 
+                setTimeout(() => setHasUnsavedChanges(false), 500);
             }
         };
 
         init();
 
-        // Cleanup function stays here or moves to the new effect? 
-        // Better to move cleanup to the effect that initializes it.
     }, [id, navigate]);
 
-    // Separate effect for EditorJS initialization
     useEffect(() => {
         if (!loading && !ejInstance.current) {
             initEditor(editorDataRef.current);
@@ -226,26 +234,25 @@ const ArticleEditor = () => {
 
         return () => {
             if (ejInstance.current && ejInstance.current.destroy && !loading) {
-                // Only destroy if we are unmounting or re-initializing
-                // But typically we don't want to destroy on every re-render unless necessary
-               ejInstance.current.destroy();
-               ejInstance.current = null;
+                ejInstance.current.destroy();
+                ejInstance.current = null;
             }
         };
-    }, [loading]); // Run when loading completes
+    }, [loading]);
 
     const initEditor = (data) => {
         const editor = new EditorJS({
             holder: 'editorjs',
             logLevel: 'ERROR',
             data: data,
+            readOnly: isPublishedRef.current,
             onReady: () => {
                 ejInstance.current = editor;
             },
             onChange: async () => {
-                setHasUnsavedChanges(true); // Mark as dirty
-                // Update word count — extract text from all block types
+                setHasUnsavedChanges(true);
                 const outputData = await ejInstance.current.save();
+                if (!outputData?.blocks) return;
                 const extractText = (block) => {
                     const d = block.data || {};
                     const parts = [];
@@ -326,11 +333,9 @@ const ArticleEditor = () => {
         });
     };
 
-    // Refactored Save Logic to accept published override
     const saveInternal = async (forcePublish = false) => {
         setSaving(true);
         try {
-            // CRITICAL: Validate userId first
             if (!userId) {
                 setFeedbackModal({
                     isOpen: true,
@@ -344,37 +349,29 @@ const ArticleEditor = () => {
             }
 
             const outputData = await ejInstance.current.save();
+            if (!outputData?.blocks) throw new Error('Éditeur non prêt, veuillez réessayer.');
             const htmlContent = generateHTML(outputData);
-            
-            // If not forcing publish (Save clicked), then it is NOT published (Draft mode)
-            // Even if it was previously published, saving an edit reverts to draft (User requirement)
-            const isPublished = forcePublish; 
-            
-            if (!forcePublish) {
-                 // Explicitly set status to draft in UI
-                 setStatus('brouillon');
-            }
+
+            const isPublished = forcePublish || status === 'publie';
 
             const contentImages = outputData.blocks
                 .filter(block => block.type === 'image')
-                .map(block => block.data.url);
-            
-            // Combine cover image/color with content images, avoiding duplicates
-            const allImages = coverUrl 
-                ? [coverUrl, ...contentImages.filter(url => url !== coverUrl)] 
+                .map(block => block.data.file?.url || block.data.url);
+
+            const allImages = coverUrl
+                ? [coverUrl, ...contentImages.filter(url => url !== coverUrl)]
                 : contentImages;
 
-            // Build article data without undefined values
             const articleData = {
                 titre: title,
                 categorie: selectedCategory || null,
                 est_publie: isPublished,
                 contenu_json: outputData,
-                contenu_html: htmlContent || '<p></p>', // Ensure non-empty
+                contenu_html: htmlContent || '<p></p>',
                 images: allImages,
                 tags: tags.split(',').map(t => t.trim()).filter(Boolean),
                 id_auteur: userId,
-                temps_lecture: Math.max(1, Math.ceil(wordCount / 238)), // ~238 mots/min en français
+                temps_lecture: Math.max(1, Math.ceil(wordCount / 238)),
             };
 
             
@@ -386,9 +383,8 @@ const ArticleEditor = () => {
                     result = await createArticle(articleData);
                 }
             } catch (apiError) {
-                // Handle axios errors - extract message from response
                 console.error('[ArticleEditor] API Error:', apiError);
-                const errorMessage = apiError.response?.data?.error 
+                const errorMessage = apiError.response?.data?.error
                     || apiError.response?.data?.message 
                     || apiError.message 
                     || 'Erreur inconnue';
@@ -408,7 +404,6 @@ const ArticleEditor = () => {
                 setHasUnsavedChanges(false);
                 if (forcePublish) setStatus('publie');
                 
-                // If new article, redirect to edit with the new ID
                 if (!id && result.data?.id) {
                     window.history.replaceState(null, '', `/dashboard/auteur/edit/${result.data.id}`);
                 }
@@ -447,12 +442,9 @@ const ArticleEditor = () => {
 
 const validateArticle = async () => {
     const errors = [];
-    if (!title || title.trim().length < 5) errors.push("Le titre est trop court ou manquant.");
+    if (!title || title.trim().length === 0) errors.push("Le titre est manquant.");
     if (!selectedCategory) errors.push("Veuillez sélectionner une catégorie.");
-    if (wordCount < 10) errors.push("Le contenu de l'article est trop court.");
-
-    // Optional: Check cover image
-    // if (!coverUrl) errors.push("Une image de couverture est recommandée.");
+    if (wordCount < 1) errors.push("Le contenu de l'article est vide.");
 
     return errors;
 };
@@ -474,34 +466,17 @@ const handlePreview = async () => {
 };
 
 const handlePublishClick = async () => {
-    // 1. Validation
     const errors = await validateArticle();
     if (errors.length > 0) {
         setValidationErrors(errors);
         return;
     }
-    setValidationErrors([]); // Clear errors
-
-    // 2. Open Preview with Publish intent
-    await handlePreview(); 
-    // The PreviewModal will have a "Confirm Publish" button if we pass a flag? 
-    // Or we strictly use the Preview to confirm.
+    setValidationErrors([]);
+    await handlePreview();
 };
 
 const handleConfirmPublish = async () => {
     setShowPreview(false);
-    setStatus('publie'); // Optimistic update
-    // Force save with published status
-    // We need to ensure the state is updated or pass it directly.
-    // Since setStatus is async, better to modify handleSave to accept status.
-    // For now, let's wait a tick or modify handleSave.
-    // Actually, handleSave reads 'status' from state. 
-    // We can refactor handleSave to accept an argument.
-    // OR we can just bypass handleSave and call API directly here, avoiding race conditions.
-    // BUT handleSave does heavy lifting (save editor, logic).
-    
-    // Quick fix: Update state then save? No, closure.
-    // Better: Helper function
     await saveInternal(true);
 };
 
@@ -509,8 +484,32 @@ const handleConfirmPublish = async () => {
 
 
 
-    const updateCategory = (slug) => {
-        setSelectedCategory(slug);
+    const requestEdit = () => {
+        if (status === 'publie' && !editConfirmed) {
+            setShowEditConfirmModal(true);
+            return false;
+        }
+        return true;
+    };
+
+    const handleConfirmEdit = async () => {
+        setShowEditConfirmModal(false);
+        setStatus('brouillon');
+        setEditConfirmed(true);
+        if (ejInstance.current) await ejInstance.current.readOnly.toggle();
+        await saveInternal(false);
+    };
+
+    const handleUnpublish = async () => {
+        setStatus('brouillon');
+        setEditConfirmed(true);
+        if (ejInstance.current) await ejInstance.current.readOnly.toggle();
+        await saveInternal(false);
+    };
+
+    const updateCategory = (id) => {
+        if (!requestEdit()) return;
+        setSelectedCategory(id);
         setHasUnsavedChanges(true);
     };
 
@@ -524,11 +523,13 @@ const handleConfirmPublish = async () => {
     };
 
     const updateTags = (newTags) => {
+        if (!requestEdit()) return;
         setTags(newTags);
         setHasUnsavedChanges(true);
     };
 
     const updateTitle = (newTitle) => {
+        if (!requestEdit()) return;
         setTitle(newTitle);
         setHasUnsavedChanges(true);
     };
@@ -546,7 +547,6 @@ const handleConfirmPublish = async () => {
                 
                 const compressedFile = await imageCompression(file, options);
                 
-                // Upload immediately to get URL
                 const response = await uploadArticleImage(compressedFile);
                 
                 if (response.success && response.url) {
@@ -574,7 +574,7 @@ const handleConfirmPublish = async () => {
         }
     };
 
-    const selectedCategoryData = categories.find(c => c.slug === selectedCategory);
+    const selectedCategoryData = categories.find(c => c.id === selectedCategory);
 
     if (loading) return <Loader />;
 
@@ -582,6 +582,17 @@ const handleConfirmPublish = async () => {
 
     return (
         <div className="article-editor-page fadeInContainer">
+
+            {showPreview && previewData && (
+                <PreviewModal
+                    articleData={previewData}
+                    onClose={() => setShowPreview(false)}
+                    onConfirm={handleConfirmPublish}
+                    isPublishing={true}
+                />
+            )}
+
+            <div style={{ display: showPreview ? 'none' : undefined }}>
             <div className="editor-sticky-header">
                 <div className="editor-header">
                     <div className="editor-header-left">
@@ -614,22 +625,27 @@ const handleConfirmPublish = async () => {
                             <span>Aperçu</span>
                         </button>
                         
-                        <button 
-                            className="btn btn-primary" 
-                            onClick={(e) => {
-                                // Default default is save draft
-                                // But if user wants to publish?
-                                saveInternal(false);
-                            }}
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => saveInternal(false)}
                             disabled={saving}
                         >
                             {saving ? <span className="spinner"><FontAwesomeIcon icon={faSpinner}/></span> : <i className="fa-solid fa-floppy-disk"></i>}
                             <span>Sauvegarder</span>
                         </button>
 
-                        {status !== 'publie' && (
-                             <button 
-                                className="btn btn-accent" 
+                        {status === 'publie' ? (
+                            <button
+                                className="btn btn-secondary"
+                                onClick={handleUnpublish}
+                                disabled={saving}
+                            >
+                                <i className="fa-solid fa-eye-slash"></i>
+                                <span>Dépublier</span>
+                            </button>
+                        ) : (
+                            <button
+                                className="btn btn-accent"
                                 onClick={handlePublishClick}
                                 disabled={saving}
                             >
@@ -657,10 +673,10 @@ const handleConfirmPublish = async () => {
                                     {(showAllCategories ? categories : categories.slice(0, 6)).map(cat => (
                                         <div 
                                             key={cat.id} 
-                                            className={`category-chip ${selectedCategory === cat.slug ? 'selected' : ''}`}
-                                            onClick={() => updateCategory(cat.slug)}
+                                            className={`category-chip ${selectedCategory === cat.id ? 'selected' : ''}`}
+                                            onClick={() => updateCategory(cat.id)}
                                         >
-                                            {selectedCategory === cat.slug ? <i className="fa-solid fa-check"></i> : <i className="fa-regular fa-circle"></i>}
+                                            {selectedCategory === cat.id ? <i className="fa-solid fa-check"></i> : <i className="fa-regular fa-circle"></i>}
                                             {cat.nom}
                                         </div>
                                     ))}
@@ -708,11 +724,17 @@ const handleConfirmPublish = async () => {
                     {/* Main Card */}
                     <div className="editor-main-card">
                         {/* Cover Image Zone */}
-                        <div 
+                        <div
                             className={`cover-image-zone ${coverUrl ? 'has-image' : ''}`}
                             onClick={() => !coverUrl && coverInputRef.current?.click()}
-                            style={coverUrl && coverUrl.startsWith('#') ? { backgroundColor: coverUrl, border: 'none' } : {}}
+                            style={{ ...(coverUrl && coverUrl.startsWith('#') ? { backgroundColor: coverUrl, border: 'none' } : {}), position: 'relative' }}
                         >
+                            {status === 'publie' && !editConfirmed && (
+                                <div
+                                    style={{ position: 'absolute', inset: 0, zIndex: 5, cursor: 'pointer' }}
+                                    onClick={(e) => { e.stopPropagation(); setShowEditConfirmModal(true); }}
+                                />
+                            )}
                             {coverUrl ? (
                                 <>
                                     {!coverUrl.startsWith('#') && <img src={coverUrl} alt={title ? `Couverture de l'article : ${title}` : "Image de couverture de l'article"} />}
@@ -798,8 +820,11 @@ const handleConfirmPublish = async () => {
                                     e.target.style.height = 'auto';
                                     e.target.style.height = e.target.scrollHeight + 'px';
                                 }}
+                                ref={titleRef}
                                 placeholder="Titre de votre article..."
                                 className="editor-title-input"
+                                readOnly={status === 'publie' && !editConfirmed}
+                                onClick={() => { if (status === 'publie' && !editConfirmed) setShowEditConfirmModal(true); }}
                                 style={{ overflow: 'hidden', resize: 'none' }}
                             />
                         </div>
@@ -808,8 +833,14 @@ const handleConfirmPublish = async () => {
                         <div className="title-divider"></div>
 
                         {/* Editor */}
-                        <div className="editor-container">
+                        <div className="editor-container" style={{ position: 'relative' }}>
                             <div id="editorjs"></div>
+                            {status === 'publie' && !editConfirmed && (
+                                <div
+                                    style={{ position: 'absolute', inset: 0, zIndex: 5, cursor: 'text' }}
+                                    onClick={() => setShowEditConfirmModal(true)}
+                                />
+                            )}
                         </div>
 
                         {/* Stats Footer inside Card */}
@@ -848,21 +879,22 @@ const handleConfirmPublish = async () => {
                     </div>
                 </div>
                 
-                {/* Modals & Banners */}
-                <PreviewModal 
-                    isOpen={showPreview} 
-                    onClose={() => setShowPreview(false)}
-                    articleData={previewData}
-                    onConfirm={handleConfirmPublish}
-                    isPublishing={true} // Triggers "Confirm Publish" button in modal
+                <ConfirmModal
+                    isOpen={showEditConfirmModal}
+                    onClose={() => setShowEditConfirmModal(false)}
+                    onConfirm={handleConfirmEdit}
+                    title="Modifier l'article publié ?"
+                    message="Cet article est actuellement publié. Le modifier le repassera en brouillon jusqu'à ce que vous le republiiez."
+                    confirmText="Modifier quand même"
+                    isDanger={false}
                 />
 
-                <ValidationBanner 
-                    errors={validationErrors} 
-                    onClose={() => setValidationErrors([])} 
+                <ValidationBanner
+                    errors={validationErrors}
+                    onClose={() => setValidationErrors([])}
                 />
 
-                <ConfirmModal 
+                <ConfirmModal
                     isOpen={feedbackModal.isOpen}
                     onClose={() => setFeedbackModal({ ...feedbackModal, isOpen: false })}
                     onConfirm={() => setFeedbackModal({ ...feedbackModal, isOpen: false })}
@@ -872,6 +904,7 @@ const handleConfirmPublish = async () => {
                     showCancel={false} // Alert mode (only OK button)
                     confirmText="OK"
                 />
+            </div>
             </div>
         </div>
     );

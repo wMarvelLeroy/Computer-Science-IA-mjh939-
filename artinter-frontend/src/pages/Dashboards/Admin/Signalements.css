@@ -1,4 +1,4 @@
-/* ─── Badge type (article / commentaire) ─────────────────────── */
+﻿/* Badge type (article / commentaire) */
 .sig-type-badge {
   display: inline-flex;
   align-items: center;
@@ -10,7 +10,7 @@
 }
 .sig-type-badge .material-icons { font-size: 12px; }
 
-/* ─── Badge occurrences multiples ────────────────────────────── */
+/* Badge occurrences multiples */
 .sig-repeat-badge {
   display: inline-flex;
   align-items: center;
@@ -22,7 +22,7 @@
 }
 .sig-repeat-badge .material-icons { font-size: 12px; }
 
-/* ─── Grille de cards ─────────────────────────────────────────── */
+/* Grille de cards */
 .sig-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -30,7 +30,7 @@
   margin-top: 8px;
 }
 
-/* ─── Card individuelle ───────────────────────────────────────── */
+/* Card individuelle */
 .sig-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -142,7 +142,7 @@
 
 .sig-card-hint .material-icons { font-size: 13px; }
 
-/* ─── Overlay de détail ───────────────────────────────────────── */
+/* Overlay de détail */
 .sig-detail-overlay {
   position: fixed;
   inset: 0;
@@ -350,7 +350,7 @@
   justify-content: center;
 }
 
-/* ─── Responsive mobile ───────────────────────────────────────── */
+/* Responsive mobile */
 @media (max-width: 640px) {
   .sig-grid {
     grid-template-columns: 1fr;

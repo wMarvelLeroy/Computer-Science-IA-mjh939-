@@ -14,7 +14,6 @@ import { useAuth } from '../../../contexts/AuthContext.jsx';
 import Loader from '../../../components/Loader/Loader.jsx';
 import ConfirmModal from '../../../components/Modal/ConfirmModal.jsx';
 import StatusBadge from '../../../components/Dashboard/StatusBadge.jsx';
-import AuthorPreviewCard from '../../../components/AuthorPreviewCard/AuthorPreviewCard.jsx';
 import ClaimSection, { ClaimBadge } from '../../../components/ClaimSection/ClaimSection.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -29,7 +28,6 @@ function Requests() {
     const { user } = useAuth();
     const currentAdminId = user?.id;
 
-    // Determine initial tab from route
     const getInitialTab = () => {
         if (location.pathname.includes('category')) return 'category';
         return 'author';
@@ -57,7 +55,6 @@ function Requests() {
         message: ''
     });
     const [rejectReason, setRejectReason] = useState('');
-    const [previewAuthorId, setPreviewAuthorId] = useState(null);
 
     const currentClaims = activeTab === 'author' ? claimsAuteur : claimsCateg;
     const tableName = activeTab === 'author' ? 'demandes_auteur' : 'demandes_categorie';
@@ -297,7 +294,7 @@ function Requests() {
                             <div className="request-header">
                                 <button
                                     className="request-user request-user-btn"
-                                    onClick={() => demande.user_id && setPreviewAuthorId(demande.user_id)}
+                                    onClick={() => demande.user_id && window.open(`/profil/${demande.user_id}`, '_blank')}
                                     title="Voir le profil"
                                 >
                                     <div className="user-avatar">
@@ -412,10 +409,6 @@ function Requests() {
             </ConfirmModal>
 
             {/* Prévisualisation profil */}
-            <AuthorPreviewCard
-                authorId={previewAuthorId}
-                onClose={() => setPreviewAuthorId(null)}
-            />
 
             {/* Toast */}
             {toast && (

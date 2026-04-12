@@ -11,7 +11,7 @@ const TABLE_LABELS = {
   demandes_categorie:      'demande de catégorie',
 };
 
-// ─── GET / ── Claims actives pour une table ───────────────────────────────────
+// GET /api/moderation-claims
 router.get('/', requireAuth, async (req, res) => {
   try {
     if (!isAdmin(req)) return res.status(403).json({ success: false, error: 'Accès refusé' });
@@ -32,7 +32,7 @@ router.get('/', requireAuth, async (req, res) => {
   }
 });
 
-// ─── POST / ── Prendre en charge ──────────────────────────────────────────────
+// POST /api/moderation-claims
 router.post('/', requireAuth, async (req, res) => {
   try {
     if (!isAdmin(req)) return res.status(403).json({ success: false, error: 'Accès refusé' });
@@ -42,7 +42,6 @@ router.post('/', requireAuth, async (req, res) => {
       return res.status(400).json({ success: false, error: 'table_name et item_id requis' });
     }
 
-    // Chercher une claim existante (active ou expirée)
     const { data: existing } = await supabase
       .from('moderations_claims')
       .select('*, profils!moderations_claims_claimed_by_fkey(id, nom)')
@@ -52,7 +51,6 @@ router.post('/', requireAuth, async (req, res) => {
 
     if (existing) {
       const active = new Date(existing.expires_at) > new Date();
-      // Si active et prise par quelqu'un d'autre → refus
       if (active && existing.claimed_by !== req.user.id) {
         return res.status(409).json({
           success: false,
@@ -60,7 +58,6 @@ router.post('/', requireAuth, async (req, res) => {
           claim: existing,
         });
       }
-      // Sinon (prise par moi ou expirée) → supprimer l'ancienne
       await supabase.from('moderations_claims').delete().eq('id', existing.id);
     }
 
@@ -78,7 +75,7 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
-// ─── DELETE /:table_name/:item_id ── Libérer ──────────────────────────────────
+// DELETE /api/moderation-claims/:table_name/:item_id
 router.delete('/:table_name/:item_id', requireAuth, async (req, res) => {
   try {
     if (!isAdmin(req)) return res.status(403).json({ success: false, error: 'Accès refusé' });
@@ -96,7 +93,6 @@ router.delete('/:table_name/:item_id', requireAuth, async (req, res) => {
       return res.status(404).json({ success: false, error: 'Aucune prise en charge trouvée' });
     }
 
-    // Seul le responsable ou un super_admin peut libérer
     const isSuperAdmin = req.profil?.role === 'super_admin';
     if (existing.claimed_by !== req.user.id && !isSuperAdmin) {
       return res.status(403).json({
@@ -116,7 +112,7 @@ router.delete('/:table_name/:item_id', requireAuth, async (req, res) => {
   }
 });
 
-// ─── POST /:table_name/:item_id/contester ── Notifier le responsable ──────────
+// POST /api/moderation-claims/:table_name/:item_id/contester
 router.post('/:table_name/:item_id/contester', requireAuth, async (req, res) => {
   try {
     if (!isAdmin(req)) return res.status(403).json({ success: false, error: 'Accès refusé' });
@@ -137,7 +133,6 @@ router.post('/:table_name/:item_id/contester', requireAuth, async (req, res) => 
       return res.status(400).json({ success: false, error: 'Vous êtes déjà responsable de cet élément' });
     }
 
-    // Nom du contestataire
     const { data: contesterProfil } = await supabase
       .from('profils')
       .select('nom')

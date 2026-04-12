@@ -4,11 +4,6 @@ import { supabase } from '../../config/supabase.js';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import Loader from '../../components/Loader/Loader.jsx';
 
-/**
- * Page de callback OAuth (Google).
- * Supabase redirige ici après l'authentification Google avec le token dans l'URL.
- * On récupère la session, on la stocke, puis on redirige l'utilisateur.
- */
 function AuthCallback() {
   const navigate   = useNavigate();
   const { login }  = useAuth();
@@ -24,11 +19,9 @@ function AuthCallback() {
 
       const session = data.session;
 
-      // Stocker les tokens comme le reste de l'app
       localStorage.setItem('token', session.access_token);
       localStorage.setItem('refresh_token', session.refresh_token);
 
-      // Récupérer le profil via le backend pour avoir le rôle
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/user`, {
           headers: { Authorization: `Bearer ${session.access_token}` }
@@ -44,7 +37,6 @@ function AuthCallback() {
         }
       } catch { /* fallback ci-dessous */ }
 
-      // Fallback : on navigue vers l'accueil
       navigate('/');
     };
 

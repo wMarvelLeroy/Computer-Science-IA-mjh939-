@@ -320,12 +320,10 @@
   font-size: 1.1rem;
 }
 
-/* --- SECTION ARTICLES ERGONOMIQUE --- */
-
 .articles-section {
-  padding: 30px; /* Même padding que le Hero pour aligner */
+  padding: 30px;
   width: 100%;
-  max-width: 1600px; /* On garde la même largeur max que le Hero */
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -344,32 +342,23 @@
   color: var(--color-accent-hover);
 }
 
-/* LA GRILLE MAGIQUE */
 .articles-grid {
   display: grid;
-  /* 
-     C'est la ligne la plus importante : 
-     Elle crée autant de colonnes que possible.
-     Chaque colonne fait au minimum 280px.
-     Si l'écran s'agrandit, elles s'élargissent (1fr).
-  */
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 30px; /* Espace entre les cartes */
+  gap: 30px;
 }
 
-/* LA CARTE ARTICLE */
 .article-card {
-  background: var(--color-bg-sidebar); /* Fond léger */
+  background: var(--color-bg-sidebar);
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid var(--color-border-hr); /* Bordure subtile */
+  border: 1px solid var(--color-border-hr);
   transition: transform 0.3s, box-shadow 0.3s;
   display: flex;
-  flex-direction: column; /* Important pour aligner le contenu */
-  height: 100%; /* Force toutes les cartes à la même hauteur */
+  flex-direction: column;
+  height: 100%;
 }
 
-/* Effet de survol "Carte qui se lève" */
 .article-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 24px rgba(0,0,0,0.1);
@@ -385,16 +374,14 @@
 .card-image-wrapper img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* L'image remplit la zone sans se déformer */
+  object-fit: cover;
   transition: transform 0.5s ease;
 }
 
-/* Zoom léger sur l'image au survol */
 .article-card:hover .card-image-wrapper img {
   transform: scale(1.05);
 }
 
-/* Le petit badge "Technologie", "Art", etc. */
 .card-category {
   position: absolute;
   top: 15px;
@@ -408,11 +395,22 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
+.card-category-text {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  margin-bottom: 8px;
+}
+
 .card-content {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  flex: 1; /* Prend tout l'espace restant */
+  flex: 1;
 }
 
 .card-content h3 {
@@ -428,7 +426,7 @@
   color: var(--color-text-placeholder);
   margin-bottom: 24px;
   line-height: 1.6;
-  flex: 1; /* Pousse le bouton vers le bas pour qu'ils soient tous alignés */
+  flex: 1;
 }
 
 .card-link {

@@ -1,6 +1,4 @@
-/* ==========================================
-   ARTICLES LIST — Dashboard Auteur
-   ========================================== */
+﻿/* ARTICLES LIST — Dashboard Auteur */
 
 .al-page {
   display: flex;
@@ -8,7 +6,7 @@
   gap: 24px;
 }
 
-/* ── Header ── */
+/* Header */
 .al-header {
   display: flex;
   align-items: flex-start;
@@ -50,7 +48,7 @@
   transform: translateY(-1px);
 }
 
-/* ── Stats ── */
+/* Stats */
 .al-stats {
   display: flex;
   gap: 16px;
@@ -87,7 +85,7 @@
   margin-left: -4px;
 }
 
-/* ── Toolbar ── */
+/* Toolbar */
 .al-toolbar {
   display: flex;
   gap: 12px;
@@ -154,7 +152,7 @@
   font-weight: 600;
 }
 
-/* ── Liste ── */
+/* Liste */
 .al-list {
   display: flex;
   flex-direction: column;
@@ -269,7 +267,7 @@
 .al-action-btn--view:hover  { background: #3b82f6; border-color: #3b82f6; color: white; }
 .al-action-btn--delete:hover { background: #ef4444; border-color: #ef4444; color: white; }
 
-/* ── Empty ── */
+/* Empty */
 .al-empty {
   display: flex;
   flex-direction: column;
@@ -290,7 +288,7 @@
   font-size: 1rem;
 }
 
-/* ── Modale suppression ── */
+/* Modale suppression */
 .al-overlay {
   position: fixed;
   inset: 0;
@@ -384,7 +382,7 @@
 }
 .al-confirm-delete:hover { background: #dc2626; }
 
-/* ── Responsive ── */
+/* Responsive */
 @media (max-width: 640px) {
   .al-cover { display: none; }
   .al-item  { gap: 12px; }

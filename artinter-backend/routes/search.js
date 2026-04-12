@@ -18,10 +18,7 @@ router.get('/', async (req, res) => {
     const isHashtag = term.startsWith('#');
     const rawTerm = isHashtag ? term.slice(1) : term;
 
-    // ── Requêtes en parallèle ─────────────────────────────────────────────────
     const [articlesRes, categoriesRes, profilsRes, tagsRes] = await Promise.allSettled([
-
-      // 1. Articles (titre + contenu)
       supabase
         .from('articles')
         .select('id, titre, slug, images, tags, contenu_html, date_publication, categories(nom, slug), auteurs(id, profils(nom, avatar_url))')
@@ -30,7 +27,6 @@ router.get('/', async (req, res) => {
         .order('date_publication', { ascending: false })
         .limit(n),
 
-      // 2. Catégories
       supabase
         .from('categories')
         .select('id, nom, slug, description')
@@ -38,7 +34,6 @@ router.get('/', async (req, res) => {
         .order('nom')
         .limit(n),
 
-      // 3. Profils (non-lecteur, visibles publiquement)
       supabase
         .from('profils')
         .select('id, nom, avatar_url, role, bio, visible_dans_recherche')
@@ -47,7 +42,7 @@ router.get('/', async (req, res) => {
         .order('nom')
         .limit(n),
 
-      // 4. Tags : articles dont les tags contiennent le terme
+      // tags
       supabase
         .from('articles')
         .select('id, titre, slug, images, tags, contenu_html, date_publication, categories(nom, slug), auteurs(id, profils(nom, avatar_url))')
@@ -57,13 +52,12 @@ router.get('/', async (req, res) => {
         .limit(n),
     ]);
 
-    // ── Extraction & nettoyage ────────────────────────────────────────────────
     const articles    = articlesRes.status   === 'fulfilled' ? (articlesRes.value.data   || []) : [];
     const categories  = categoriesRes.status === 'fulfilled' ? (categoriesRes.value.data || []) : [];
     const rawProfils  = profilsRes.status    === 'fulfilled' ? (profilsRes.value.data    || []) : [];
     const tagArticles = tagsRes.status       === 'fulfilled' ? (tagsRes.value.data       || []) : [];
 
-    // Pour admin/super_admin avec visible_dans_recherche=null, vérifier s'ils ont des articles publiés
+    // admins sans visibilité explicite → visible si a des articles publiés
     const adminsNullVis = rawProfils.filter(p =>
       ['admin', 'super_admin'].includes(p.role) && p.visible_dans_recherche === null
     );
@@ -78,22 +72,18 @@ router.get('/', async (req, res) => {
       adminIdsWithArticles = new Set((adminArticles || []).map(a => a.id_auteur));
     }
 
-    // Appliquer les règles de visibilité finales (côté JS pour tolérer colonne manquante)
     const profils = rawProfils.filter(p => {
-      if (p.visible_dans_recherche === false) return false; // explicitement caché
+      if (p.visible_dans_recherche === false) return false;
       if (p.role === 'auteur') return true;
       if (['admin', 'super_admin'].includes(p.role)) {
         if (p.visible_dans_recherche === true) return true;
-        // null = automatique : visible si a des articles
         return adminIdsWithArticles.has(p.id);
       }
       return false;
     });
 
-    // Auteurs = profils visibles avec rôle auteur/admin/super_admin
     const auteurs = profils;
 
-    // Tags uniques extraits des articles de la recherche principale
     const tagSet = new Set();
     [...articles, ...tagArticles].forEach(a => {
       (a.tags || []).forEach(t => {
@@ -102,10 +92,8 @@ router.get('/', async (req, res) => {
     });
     const tags = [...tagSet].slice(0, n);
 
-    // Strip HTML tags pour l'extrait
     const stripHtml = (html) => (html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
-    // Normaliser les auteurs imbriqués dans articles
     const normalizeArticle = (a) => {
       const profil = Array.isArray(a.auteurs?.profils) ? a.auteurs.profils[0] : a.auteurs?.profils;
       const raw = stripHtml(a.contenu_html);
@@ -128,7 +116,7 @@ router.get('/', async (req, res) => {
         tagArticles: tagArticles.map(normalizeArticle),
         categories,
         auteurs,
-        profils:     [], // lecteurs jamais exposés publiquement
+        profils:     [],
         tags,
       },
     });

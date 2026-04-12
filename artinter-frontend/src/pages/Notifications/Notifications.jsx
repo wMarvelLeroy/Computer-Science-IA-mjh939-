@@ -15,7 +15,6 @@ import { useAuth } from '../../contexts/AuthContext.jsx';
 import Loader from '../../components/Loader/Loader.jsx';
 import './Notifications.css';
 
-// ─── Éléments admin à gérer (résumés) ────────────────────────────────────────
 const ADMIN_ITEMS_META = [
   { key: 'signalements',    icon: 'flag',           color: '#ef4444', label: 'signalement',             plural: 'signalements',            path: '/dashboard/admin/signalements' },
   { key: 'reexaminations',  icon: 'policy',         color: '#7c3aed', label: 'demande de réexamination', plural: 'demandes de réexamination', path: '/dashboard/admin/reexamination' },
@@ -23,7 +22,6 @@ const ADMIN_ITEMS_META = [
   { key: 'demandesCateg',   icon: 'label',          color: '#0ea5e9', label: 'demande catégorie',        plural: 'demandes catégorie',        path: '/dashboard/admin/category-requests' },
 ];
 
-// ─── Méta par type ────────────────────────────────────────────────────────────
 const TYPE_META = {
   nouvel_article:    { icon: 'article',            color: '#10b981' },
   role_promu:        { icon: 'verified',           color: '#7c3aed' },
@@ -43,7 +41,6 @@ const TYPE_META = {
 const defaultMeta = { icon: 'notifications', color: '#64748b' };
 const getMeta = (type) => TYPE_META[type] || defaultMeta;
 
-// Types pour lesquels l'utilisateur peut demander une réexamination
 const TYPES_ACTIONNABLES = ['restriction', 'auteur_banni', 'article_restreint', 'role_retire'];
 const TYPE_LABELS = {
   restriction:       'Restriction de compte',
@@ -61,7 +58,6 @@ const formatDate = (d) =>
 const formatDateShort = (d) =>
   new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
-// ─── Composant principal ──────────────────────────────────────────────────────
 const isAdmin = (role) => ['admin', 'super_admin'].includes(role);
 
 export default function Notifications() {
@@ -199,14 +195,12 @@ export default function Notifications() {
 
   if (loading) return <Loader />;
 
-  // ─── Bloc réexamination dans le panel de détail ──────────────────────────
   const renderReexamination = (notif) => {
     if (!TYPES_ACTIONNABLES.includes(notif.type)) return null;
 
     const demande = demandesMap[notif.id];
 
     if (demande) {
-      // Demande existante
       if (demande.statut === 'en_attente') {
         return (
           <div className="notif-detail-reex">
@@ -234,7 +228,6 @@ export default function Notifications() {
         );
       }
       if (demande.statut === 'refusee') {
-        // Vérifier si cooldown encore actif
         let canResubmit = true;
         let cooldownMsg = null;
 
@@ -334,7 +327,6 @@ export default function Notifications() {
     );
   };
 
-  // ─── Rendu ────────────────────────────────────────────────────────────────
   return (
     <div className={`notifs-page ${selected ? 'has-panel' : ''}`}>
 

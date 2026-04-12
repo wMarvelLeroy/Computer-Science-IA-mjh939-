@@ -23,23 +23,34 @@ const CatalogArticleCard = ({ article }) => {
   return (
     <div className="ac2-card" onClick={() => navigate(`/article/${article.slug}`)}>
 
-      <div className="ac2-img">
-        {article.image
-          ? <img src={article.image} alt={article.title} loading="lazy" />
-          : <span className="material-icons" translate="no">article</span>}
+      {article.image && (
+        <div className="ac2-img">
+          {article.image.startsWith('#')
+            ? <div style={{ width: '100%', height: '100%', backgroundColor: article.image }} />
+            : <img src={article.image} alt={article.title} loading="lazy" />
+          }
+          {article.category && (
+            <Link
+              to={article.categorySlug ? `/Catalog?categorie=${article.categorySlug}` : '/Catalog'}
+              className="ac2-cat-badge"
+              onClick={e => e.stopPropagation()}
+            >
+              {article.category}
+            </Link>
+          )}
+        </div>
+      )}
 
-        {article.category && (
+      <div className="ac2-body">
+        {!article.image && article.category && (
           <Link
             to={article.categorySlug ? `/Catalog?categorie=${article.categorySlug}` : '/Catalog'}
-            className="ac2-cat-badge"
+            className="ac2-cat-badge ac2-cat-badge--inline"
             onClick={e => e.stopPropagation()}
           >
             {article.category}
           </Link>
         )}
-      </div>
-
-      <div className="ac2-body">
         <h3 className="ac2-title">{article.title}</h3>
         {article.description && (
           <p className="ac2-excerpt">{article.description}</p>

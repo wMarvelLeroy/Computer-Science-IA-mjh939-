@@ -65,6 +65,19 @@
   transform: scale(1.05);
 }
 
+.ac2-cat-badge--inline {
+  position: static;
+  display: inline-block;
+  transform: none;
+  align-self: flex-start;
+  margin-bottom: 4px;
+}
+
+.ac2-cat-badge--inline:hover {
+  transform: none;
+  opacity: 0.88;
+}
+
 .ac2-body {
   padding: 16px 16px 14px;
   display: flex;

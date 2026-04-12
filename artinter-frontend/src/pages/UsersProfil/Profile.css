@@ -1,9 +1,11 @@
-.user-profile {
+﻿.user-profile {
     max-width: 1400px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     gap: 30px;
+    min-width: 0;
+    width: 100%;
 }
 
 .profile-card {
@@ -153,6 +155,9 @@
     border-radius: 16px;
     padding: 30px;
     box-shadow: 0 2px 8px var(--color-shadow);
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .section-card h3 {
@@ -537,11 +542,9 @@
     }
 }
 
-/* ══════════════════════════════════════════
-   NOUVEAU PROFIL — extensions
-══════════════════════════════════════════ */
+/* NOUVEAU PROFIL — extensions */
 
-/* ── Badge de rôle ── */
+/* Badge de rôle */
 .prf-name-row {
     display: flex;
     align-items: center;
@@ -560,7 +563,7 @@
     letter-spacing: 0.02em;
 }
 
-/* ── Meta row ── */
+/* Meta row */
 .prf-meta-row {
     display: flex;
     align-items: center;
@@ -586,7 +589,7 @@
     gap: 4px;
 }
 
-/* ── Bio ── */
+/* Bio */
 .prf-bio {
     margin-top: 10px;
     color: var(--color-text-secondary);
@@ -594,7 +597,7 @@
     line-height: 1.55;
 }
 
-/* ── Social bar inline ── */
+/* Social bar inline */
 .prf-social-bar {
     display: flex;
     flex-wrap: wrap;
@@ -625,7 +628,7 @@
 .prf-social-chip.youtube   { background: #FF0000; }
 .prf-social-chip.website   { background: #10b981; }
 
-/* ── Quick link bar ── */
+/* Quick link bar */
 .prf-quicklink-bar {
     display: flex;
     gap: 12px;
@@ -657,11 +660,11 @@
 
 .prf-quicklink svg:last-child { margin-left: auto; }
 
-/* ── Grid columns ── */
-.prf-left  { display: flex; flex-direction: column; gap: 30px; }
-.prf-right { display: flex; flex-direction: column; gap: 30px; }
+/* Grid columns */
+.prf-left  { display: flex; flex-direction: column; gap: 30px; min-width: 0; }
+.prf-right { display: flex; flex-direction: column; gap: 30px; min-width: 0; }
 
-/* ── Stats grid ── */
+/* Stats grid */
 .prf-stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -716,7 +719,7 @@
     margin: 2px 0 0;
 }
 
-/* ── Top articles ── */
+/* Top articles */
 .prf-top-articles {
     border-top: 1px solid var(--color-border-hr);
     padding-top: 20px;
@@ -833,13 +836,16 @@
     gap: 4px;
 }
 
-/* ── Interaction tabs ── */
+/* Interaction tabs */
 .prf-interaction-tabs {
     display: flex;
+    flex-wrap: wrap;
     gap: 6px;
     margin-bottom: 16px;
     border-bottom: 1px solid var(--color-border-hr);
     padding-bottom: 12px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .prf-interaction-tabs button {
@@ -879,7 +885,7 @@
     color: var(--color-text-placeholder);
 }
 
-/* ── Liked articles list ── */
+/* Liked articles list */
 .prf-interaction-list {
     display: flex;
     flex-direction: column;
@@ -955,7 +961,7 @@
     flex-shrink: 0;
 }
 
-/* ── People list ── */
+/* People list */
 .prf-people-list {
     display: flex;
     flex-direction: column;
@@ -1008,18 +1014,33 @@
     padding: 20px 0;
 }
 
-/* ── Responsive ── */
+/* Responsive */
 @media (max-width: 1024px) {
     .prf-stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 820px) {
+    .profile-content { padding: 0 20px 20px; }
     .prf-social-bar { padding: 12px 20px 16px; }
+    .section-card { padding: 20px; }
     .prf-stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
     .prf-stat-value { font-size: 1.3rem; }
     .prf-interaction-tabs { flex-wrap: wrap; }
     .prf-name-row h2 { font-size: 1.4rem; }
     .main-grid { grid-template-columns: 1fr; }
+
+    /* Profile header stacks vertically on tablet */
+    .profile-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .profile-actions {
+        margin-left: 0;
+        width: 100%;
+    }
+    .profile-actions button {
+        flex: 1;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1038,13 +1059,19 @@
 
     /* Top articles */
     .prf-top-header { flex-direction: column; align-items: flex-start; }
-    .prf-top-nums { display: none; }  /* trop étroit pour les chiffres */
+    .prf-top-nums { display: none; }
     .prf-top-item { padding: 8px 10px; gap: 8px; }
 
-    /* Onglets interactions : boutons plus compacts */
+    /* Onglets interactions : déploiement vertical */
+    .prf-interaction-tabs {
+        flex-direction: column;
+        gap: 6px;
+    }
     .prf-interaction-tabs button {
-        padding: 5px 8px;
-        font-size: 0.76rem;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        width: 100%;
+        justify-content: space-between;
     }
     .prf-tab-count { padding: 1px 5px; }
 
@@ -1058,7 +1085,25 @@
     /* Quicklink */
     .prf-quicklink { padding: 12px 14px; font-size: 0.88rem; }
 
-    /* Nom */
+    /* Nom + bannière */
     .prf-name-row h2 { font-size: 1.2rem; }
+    .profile-banner { height: 110px; }
+    .avatar-circle { width: 90px; height: 90px; }
+    .profile-avatar { margin-top: -46px; }
+
+    /* Boutons actions plein largeur */
+    .profile-actions {
+        flex-direction: column;
+    }
+    .profile-actions button,
+    .btn-edit-profile,
+    .btn-deconnexion {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Social chips wrappent mieux */
+    .prf-social-bar { flex-wrap: wrap; gap: 6px; }
+    .prf-social-chip { font-size: 0.8rem; padding: 5px 10px; }
 }
 

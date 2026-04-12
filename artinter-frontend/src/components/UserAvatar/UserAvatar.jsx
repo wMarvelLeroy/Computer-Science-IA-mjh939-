@@ -1,15 +1,6 @@
 import React from 'react';
 import './UserAvatar.css';
 
-/**
- * Avatar utilisateur unifié
- *   - avatar_url présent → image
- *   - sinon → initiales sur fond couleur_avatar (ou dégradé par défaut)
- *
- * @param {Object} profil  - { nom, avatar_url, couleur_avatar }
- * @param {number} size    - diamètre en px (défaut 36)
- * @param {string} className - classe CSS additionnelle
- */
 const UserAvatar = ({ profil, size = 36, className = '' }) => {
   const nom = profil?.nom || '';
   const initials = nom

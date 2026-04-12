@@ -47,7 +47,6 @@ function DashboardAuteur() {
                 // Ignore errors here
             }
 
-            // Charger les articles de l'auteur
             try {
                 const articlesResponse = await getArticlesByAuteur(currentUser.id);
                 setArticles(articlesResponse.data || []);
@@ -56,7 +55,6 @@ function DashboardAuteur() {
                 setArticles([]);
             }
 
-            // Charger les stats (si disponible)
             try {
                 const statsResponse = await getStatsAuteur(currentUser.id);
                 setStats(statsResponse.data);
@@ -87,14 +85,12 @@ function DashboardAuteur() {
         return <Loader />;
     }
 
-    // Calculer les stats basiques
     const totalArticles = articles.length;
     const articlesPublies = articles.filter(a => a.est_publie).length;
     const brouillons = totalArticles - articlesPublies;
     const totalVues = articles.reduce((sum, a) => sum + (a.vues || 0), 0);
     const totalLikes = articles.reduce((sum, a) => sum + (a.likes_count || 0), 0);
 
-    // Les 3 derniers articles (triés par date décroissante)
     const recentArticles = [...articles]
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
         .slice(0, 3);

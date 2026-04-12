@@ -1,4 +1,4 @@
-.modal-overlay {
+﻿.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -292,7 +292,7 @@
   }
 }
 
-/* ── Sélecteur de couleur de bannière ── */
+/* Sélecteur de couleur de bannière */
 .color-presets {
   display: flex;
   flex-wrap: wrap;

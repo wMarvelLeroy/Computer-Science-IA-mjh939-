@@ -115,7 +115,6 @@ router.put('/:id/ban', requireAuth, async (req, res) => {
 
     if (error) return res.status(500).json({ success: false, error: error.message });
 
-    // Notify user
     await supabase.from('notifications').insert([{
       user_id: id,
       type: est_banni ? 'auteur_banni' : 'auteur_debanni',

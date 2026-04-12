@@ -10,7 +10,6 @@ const upload = multer({
     fileSize: 1 * 1024 * 1024, // 1 MB max (sécurité - le frontend compresse à 500KB)
   },
   fileFilter: (req, file, cb) => {
-    // Accepter uniquement les images
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
@@ -36,7 +35,6 @@ router.get('/', requireAuth, async (req, res) => {
       return res.status(500).json({ success: false, error: error.message });
     }
 
-    // Enrichir chaque profil avec l'email de connexion depuis auth.users
     const enriched = await Promise.all(
       data.map(async (profil) => {
         try {
@@ -57,7 +55,6 @@ router.get('/', requireAuth, async (req, res) => {
 // GET /api/profils/public/auteurs - Auteurs visibles publiquement (pour le Catalog)
 router.get('/public/auteurs', async (req, res) => {
   try {
-    // Récupérer tous les non-lecteur qui ne se sont pas explicitement cachés
     const { data: candidates, error } = await supabase
       .from('profils')
       .select('id, nom, avatar_url, bio, role, visible_dans_recherche')
@@ -66,11 +63,9 @@ router.get('/public/auteurs', async (req, res) => {
 
     if (error) return res.status(500).json({ success: false, error: error.message });
 
-    // Filtrer côté JS si la colonne existe, sinon tout afficher
     const filtered = candidates.filter(p => p.visible_dans_recherche !== false);
     if (!filtered || filtered.length === 0) return res.json({ success: true, data: [] });
 
-    // Compter les articles publiés par candidat
     const candidateIds = filtered.map(p => p.id);
     const { data: articleRows } = await supabase
       .from('articles')
@@ -133,12 +128,15 @@ router.put('/:userId', requireAuth, async (req, res) => {
   try {
     const { userId } = req.params;
     const updates = req.body;
-    // Only super_admin can assign elevated roles
+
+    if (req.user.id !== userId && !isAdmin(req)) {
+      return res.status(403).json({ success: false, error: 'Accès refusé' });
+    }
+
     if (['admin', 'super_admin'].includes(updates.role) && !isSuperAdmin(req)) {
       return res.status(403).json({ success: false, error: 'Seul un super administrateur peut attribuer ce rôle' });
     }
 
-    // Get current profil to detect role change
     const { data: currentProfil } = await supabase.from('profils').select('role').eq('id', userId).single();
     const oldRole = currentProfil?.role;
     const newRole = updates.role;
@@ -154,9 +152,7 @@ router.put('/:userId', requireAuth, async (req, res) => {
       return res.status(500).json({ success: false, error: error.message });
     }
 
-    // Auto-manage auteurs table and send notifications on role change
     if (newRole && newRole !== oldRole) {
-      // Promote to auteur → create auteurs record (auteurs.id = userId)
       if (newRole === 'auteur') {
         await supabase.from('auteurs').upsert([{ id: userId, est_valide: true, est_banni: false }], { onConflict: 'id' });
         await supabase.from('profils').update({ auteur_id: userId }).eq('id', userId);
@@ -166,8 +162,7 @@ router.put('/:userId', requireAuth, async (req, res) => {
           message: 'Votre statut Auteur a été validé. Vous pouvez désormais créer et publier des articles sur la plateforme.'
         }]);
       }
-      // Demoted from auteur → remove auteurs record
-      if (oldRole === 'auteur' && newRole !== 'auteur') {
+      if (oldRole === 'auteur' && !['auteur', 'admin', 'super_admin'].includes(newRole)) {
         await supabase.from('auteurs').delete().eq('id', userId);
         await supabase.from('profils').update({ auteur_id: null }).eq('id', userId);
         await supabase.from('notifications').insert([{
@@ -176,7 +171,6 @@ router.put('/:userId', requireAuth, async (req, res) => {
           message: 'Votre statut Auteur a été retiré par un administrateur. Vos articles existants sont conservés.'
         }]);
       }
-      // Promote to admin
       if (newRole === 'admin') {
         await supabase.from('notifications').insert([{
           user_id: userId, type: 'role_promu',
@@ -184,7 +178,6 @@ router.put('/:userId', requireAuth, async (req, res) => {
           message: 'Vous avez été promu au rôle Administrateur de la plateforme ArtInter.'
         }]);
       }
-      // Promote to super_admin
       if (newRole === 'super_admin') {
         await supabase.from('notifications').insert([{
           user_id: userId, type: 'role_promu',
@@ -192,7 +185,6 @@ router.put('/:userId', requireAuth, async (req, res) => {
           message: 'Vous avez été promu au rôle de Super Administrateur de la plateforme ArtInter.'
         }]);
       }
-      // Demoted from admin/super_admin
       if ((oldRole === 'admin' || oldRole === 'super_admin') && !['admin', 'super_admin'].includes(newRole)) {
         await supabase.from('notifications').insert([{
           user_id: userId, type: 'role_retire',
@@ -209,9 +201,13 @@ router.put('/:userId', requireAuth, async (req, res) => {
 });
 
 // DELETE /api/profils/:userId - Supprimer un profil (admin)
-router.delete('/:userId', async (req, res) => {
+router.delete('/:userId', requireAuth, async (req, res) => {
   try {
     const { userId } = req.params;
+
+    if (!isAdmin(req)) {
+      return res.status(403).json({ success: false, error: 'Accès refusé' });
+    }
     
     const { error } = await supabase
       .from('profils')
@@ -229,16 +225,19 @@ router.delete('/:userId', async (req, res) => {
 });
 
 // POST /api/profils/:userId/avatar - Upload avatar
-router.post('/:userId/avatar', async (req, res) => {
+router.post('/:userId/avatar', requireAuth, async (req, res) => {
   try {
     const { userId } = req.params;
-    const { avatar_url } = req.body; // URL de l'image ou base64
-    
+    const { avatar_url } = req.body;
+
+    if (req.user.id !== userId && !isAdmin(req)) {
+      return res.status(403).json({ success: false, error: 'Accès refusé' });
+    }
+
     if (!avatar_url) {
       return res.status(400).json({ success: false, error: 'avatar_url requis' });
     }
     
-    // Mettre à jour l'avatar_url dans le profil
     const { data, error } = await supabase
       .from('profils')
       .update({ avatar_url })
@@ -257,25 +256,27 @@ router.post('/:userId/avatar', async (req, res) => {
 });
 
 // POST /api/profils/:userId/upload-avatar - Upload fichier avatar
-router.post('/:userId/upload-avatar', upload.single('avatar'), async (req, res) => {
+router.post('/:userId/upload-avatar', requireAuth, upload.single('avatar'), async (req, res) => {
   try {
     const { userId } = req.params;
     const file = req.file;
+
+    if (req.user.id !== userId && !isAdmin(req)) {
+      return res.status(403).json({ success: false, error: 'Accès refusé' });
+    }
     
     if (!file) {
       return res.status(400).json({ success: false, error: 'Aucun fichier fourni' });
     }
     
-    //Générer un nom de fichier unique
     const fileExt = file.originalname.split('.').pop();
     const fileName = `${userId}-${Date.now()}.${fileExt}`;
-    
-    // Upload vers Supabase Storage bucket 'avatars'
+
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('avatars')
       .upload(fileName, file.buffer, {
         contentType: file.mimetype,
-        upsert: true // Remplace si existe déjà
+        upsert: true
       });
     
     if (uploadError) {
@@ -283,12 +284,10 @@ router.post('/:userId/upload-avatar', upload.single('avatar'), async (req, res) 
       return res.status(500).json({ success: false, error: uploadError.message });
     }
     
-    // Obtenir l'URL publique
     const { data: { publicUrl } } = supabase.storage
       .from('avatars')
       .getPublicUrl(fileName);
-    
-    // Mettre à jour le profil avec la nouvelle URL
+
     const { data, error } = await supabase
       .from('profils')
       .update({ avatar_url: publicUrl })
@@ -316,11 +315,8 @@ router.delete('/:userId/retirer-auteur', requireAuth, async (req, res) => {
   try {
     if (!isSuperAdmin(req)) return res.status(403).json({ success: false, error: 'Réservé aux super administrateurs' });
     const { userId } = req.params;
-    // Downgrade role to lecteur + clear auteur_id
     await supabase.from('profils').update({ role: 'lecteur', auteur_id: null }).eq('id', userId);
-    // Remove auteurs record (auteurs.id = userId)
     await supabase.from('auteurs').delete().eq('id', userId);
-    // Notify user
     await supabase.from('notifications').insert([{
       user_id: userId, type: 'role_retire',
       titre: 'Statut Auteur retiré',

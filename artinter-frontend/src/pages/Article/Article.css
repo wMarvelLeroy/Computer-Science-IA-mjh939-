@@ -1,6 +1,4 @@
-/* =========================================
-   BARRE MODÉRATION ADMIN
-   ========================================= */
+﻿/* BARRE MODÉRATION ADMIN */
 
 .article-mod-bar {
   display: flex;
@@ -66,20 +64,16 @@
 .mod-btn.delete { color: #ef4444; border-color: rgba(239,68,68,0.3); }
 .mod-btn.delete:hover { background: rgba(239,68,68,0.06); }
 
-/* =========================================
-   PAGE WRAPPER
-   ========================================= */
+/* PAGE WRAPPER */
 
 .article-page {
-  padding: 40px 30px;
+  padding: 16px 8px 40px;
   max-width: 900px;
   margin: 0 auto;
   min-height: 100vh;
 }
 
-/* =========================================
-   BOUTON RETOUR
-   ========================================= */
+/* BOUTON RETOUR */
 
 .back-button {
   display: inline-flex;
@@ -113,9 +107,7 @@
   transform: translateX(-3px);
 }
 
-/* =========================================
-   CONTAINER PRINCIPAL
-   ========================================= */
+/* CONTAINER PRINCIPAL */
 
 .article-container {
   background: var(--color-bg-sidebar);
@@ -126,9 +118,7 @@
   margin-bottom: 48px;
 }
 
-/* =========================================
-   HEADER
-   ========================================= */
+/* HEADER */
 
 .article-header {
   margin-bottom: 32px;
@@ -162,9 +152,7 @@
   letter-spacing: -0.5px;
 }
 
-/* =========================================
-   MÉTADONNÉES
-   ========================================= */
+/* MÉTADONNÉES */
 
 .article-meta {
   display: flex;
@@ -279,9 +267,7 @@
   font-weight: 600;
 }
 
-/* =========================================
-   IMAGE PRINCIPALE (HERO)
-   ========================================= */
+/* IMAGE PRINCIPALE (HERO) */
 
 .article-image-container {
   width: 100%;
@@ -305,9 +291,7 @@
   transform: scale(1.04);
 }
 
-/* =========================================
-   CONTENU TYPOGRAPHIQUE
-   ========================================= */
+/* CONTENU TYPOGRAPHIQUE */
 
 .article-content {
   color: var(--color-text-primary);
@@ -455,9 +439,7 @@
   border-radius: 2px;
 }
 
-/* =========================================
-   TAGS
-   ========================================= */
+/* TAGS */
 
 .article-tags {
   display: flex;
@@ -500,9 +482,7 @@
   border-color: var(--color-accent);
 }
 
-/* =========================================
-   PARTAGE
-   ========================================= */
+/* PARTAGE */
 
 .article-share {
   padding: 28px 0 0;
@@ -604,9 +584,7 @@
   border-color: var(--color-accent);
 }
 
-/* =========================================
-   ARTICLES SIMILAIRES
-   ========================================= */
+/* ARTICLES SIMILAIRES */
 
 .similar-articles-section {
   margin-top: 56px;
@@ -624,13 +602,11 @@
   gap: 24px;
 }
 
-/* =========================================
-   RESPONSIVE
-   ========================================= */
+/* RESPONSIVE */
 
 @media (max-width: 768px) {
   .article-page {
-    padding: 24px 16px;
+    padding: 12px 0 28px;
   }
 
   .article-container {
@@ -731,9 +707,7 @@
   }
 }
 
-/* =========================================
-   SIGNALEMENT
-   ========================================= */
+/* SIGNALEMENT */
 
 .article-report-wrap {
   text-align: center;
@@ -774,9 +748,7 @@
 
 .article-report-done .material-icons { font-size: 15px; }
 
-/* ══════════════════════════════════════════
-   BOUTON SUIVRE AUTEUR (dans le header)
-══════════════════════════════════════════ */
+/* BOUTON SUIVRE AUTEUR (dans le header) */
 .article-follow-btn {
   display: inline-flex;
   align-items: center;
@@ -799,19 +771,18 @@
 }
 .article-follow-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .article-follow-btn.following {
-  background: rgba(239,68,68,0.1);
-  color: #ef4444;
-  border: 1px solid #ef4444;
+  background: rgba(16,185,129,0.12);
+  color: #10b981;
+  border: 1px solid #10b981;
 }
 .article-follow-btn.following:hover:not(:disabled) {
-  background: #ef4444;
-  color: white;
+  background: rgba(239,68,68,0.1);
+  color: #ef4444;
+  border-color: #ef4444;
 }
 .article-follow-btn .material-icons { font-size: 16px; }
 
-/* ══════════════════════════════════════════
-   LIKES
-══════════════════════════════════════════ */
+/* LIKES */
 .article-likes {
   display: flex;
   flex-direction: column;
@@ -856,9 +827,7 @@
   margin: 0;
 }
 
-/* ══════════════════════════════════════════
-   CARTE AUTEUR
-══════════════════════════════════════════ */
+/* CARTE AUTEUR */
 .article-author-card {
   display: flex;
   align-items: center;
@@ -961,9 +930,7 @@
 .aac-follow-btn.following:hover:not(:disabled) { background: #ef4444; color: white; }
 .aac-follow-btn .material-icons { font-size: 16px; }
 
-/* ══════════════════════════════════════════
-   COMMENTAIRES
-══════════════════════════════════════════ */
+/* COMMENTAIRES */
 .article-comments {
   background: var(--color-bg-sidebar);
   border: 1px solid var(--color-border-hr);
@@ -1261,9 +1228,7 @@
   margin: 0;
 }
 
-/* ══════════════════════════════════════════
-   OVERLAY CONNEXION REQUISE
-══════════════════════════════════════════ */
+/* OVERLAY CONNEXION REQUISE */
 .article-login-overlay {
   position: fixed;
   inset: 0;
@@ -1359,14 +1324,14 @@
 }
 .article-login-btn--secondary:hover { background: var(--color-bg-primary); }
 
-/* ── Responsive ── */
+/* Responsive */
 @media (max-width: 640px) {
   .article-author-card { flex-direction: column; align-items: flex-start; }
   .aac-follow-btn { width: 100%; justify-content: center; }
   .article-comments { padding: 20px 16px; }
 }
 
-/* ── Overlay modale ── */
+/* Overlay modale */
 .signal-overlay {
   position: fixed;
   inset: 0;
@@ -1559,9 +1524,7 @@
   margin: 0;
 }
 
-/* ─────────────────────────────────────────
-   COMMENTAIRE — MODÉRATION & SIGNALEMENT
-   ───────────────────────────────────────── */
+/* COMMENTAIRE — MODÉRATION & SIGNALEMENT */
 
 /* Bouton modérer (admin) */
 .aci-btn-mod {

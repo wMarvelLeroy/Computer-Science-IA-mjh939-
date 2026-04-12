@@ -15,7 +15,6 @@ const formatCountdown = (seconds) => {
   return `${s} s`;
 };
 
-// ─── Hook countdown ───────────────────────────────────────────────────────────
 function useClaimCountdown(claim, onExpire) {
   const [remaining, setRemaining] = useState(
     claim && isClaimActive(claim) ? getRemainingSeconds(claim.expires_at) : 0
@@ -40,7 +39,6 @@ function useClaimCountdown(claim, onExpire) {
   return remaining;
 }
 
-// ─── Badge léger pour les cards dans la liste ────────────────────────────────
 export function ClaimBadge({ claim, currentUserId }) {
   const active = isClaimActive(claim);
   if (!active) return null;
@@ -54,7 +52,6 @@ export function ClaimBadge({ claim, currentUserId }) {
   );
 }
 
-// ─── Section complète dans le panneau de détail ───────────────────────────────
 export default function ClaimSection({ tableName, itemId, claim, currentUserId, onClaimChange }) {
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [loading, setLoading] = useState(false);

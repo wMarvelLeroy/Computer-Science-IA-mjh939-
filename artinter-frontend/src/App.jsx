@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react'
-import { Routes, Route, Outlet } from 'react-router-dom'
+import { Routes, Route, Outlet, Navigate } from 'react-router-dom'
 import './App.css'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import Layout from './components/Layout/Layout.jsx'
@@ -27,7 +27,6 @@ const ForgotPassword = lazy(() => import('./components/Auth/ForgotPassword.jsx')
 const ResetPassword  = lazy(() => import('./components/Auth/ResetPassword.jsx'))
 const AuthCallback   = lazy(() => import('./pages/AuthCallback/AuthCallback.jsx'))
 
-// Layout pour les pages normales (avec .page + Footer)
 const PageLayout = () => (
   <>
     <div className="page">
@@ -46,6 +45,12 @@ const App = () => {
     const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     if (systemPrefersDark) setTheme("dark");
   }, []);
+
+  React.useEffect(() => {
+    const bg = theme === 'dark' ? '#111827' : '#f9fafb';
+    document.documentElement.style.backgroundColor = bg;
+    document.body.style.backgroundColor = bg;
+  }, [theme]);
 
   return (
     <div className={`container ${theme}`}>
@@ -72,12 +77,13 @@ const App = () => {
               <Route path="/search"         element={<Search />} />
               <Route path="/profil/:userId" element={<OtherProfil />} />
 
-              {/* ── Routes protégées ── */}
+              {/* Routes protégées */}
               <Route path="/profile"            element={<RequireAuth><Profile /></RequireAuth>} />
               <Route path="/notifications"      element={<RequireAuth><Notifications /></RequireAuth>} />
               <Route path="/dashboard/auteur/*" element={<RequireAuth><AuteurRoutes /></RequireAuth>} />
               <Route path="/dashboard/admin/*"  element={<RequireAuth><AdminRoutes /></RequireAuth>} />
 
+              <Route path="/dashboard/lecteur" element={<Navigate to="/profile" replace />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>

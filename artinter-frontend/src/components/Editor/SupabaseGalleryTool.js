@@ -1,21 +1,17 @@
-
 import { uploadArticleImage } from '../../api/api';
 import imageCompression from 'browser-image-compression';
 
-/**
- * Gallery Tool for Editor.js
- * Allows uploading multiple images and displaying them in a grid.
- */
 class SupabaseGalleryTool {
   constructor({ data, api, config, readOnly }) {
     this.api = api;
     this.config = config || {};
     this.data = {
-        style: data.style || 'grid', // grid, carousel?
-        images: data.images || [] // { url, caption }[]
+        style: data.style || 'grid',
+        images: data.images || []
     };
     this.readOnly = readOnly;
     this.wrapper = undefined;
+    this.nodes = {};
   }
 
   static get toolbox() {

@@ -1,4 +1,4 @@
-/* ── Grille cards ──────────────────────────────────────────────────────────── */
+﻿/* Grille cards */
 .reex-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -6,7 +6,7 @@
   margin-top: 8px;
 }
 
-/* ── Card ─────────────────────────────────────────────────────────────────── */
+/* Card */
 .reex-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -108,7 +108,7 @@
   color: var(--color-text-placeholder);
 }
 
-/* ── Notification d'origine ───────────────────────────────────────────────── */
+/* Notification d'origine */
 .reex-notif-origin {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border-hr);
@@ -135,7 +135,7 @@
   opacity: 0.7;
 }
 
-/* ── Cooldown info ────────────────────────────────────────────────────────── */
+/* Cooldown info */
 .reex-cooldown-info {
   display: inline-flex;
   align-items: center;
@@ -149,7 +149,7 @@
 }
 .reex-cooldown-info .material-icons { font-size: 15px; color: var(--color-accent); }
 
-/* ── Auto-lift info dans la modal ─────────────────────────────────────────── */
+/* Auto-lift info dans la modal */
 .reex-auto-info {
   display: flex;
   align-items: center;

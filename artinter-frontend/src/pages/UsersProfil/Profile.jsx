@@ -47,10 +47,6 @@ const ROLE_CONFIG = {
   super_admin: { label: 'Super Administrateur', icon: faUserShield,   color: '#f59e0b', bg: 'rgba(245,158,11,0.12)'  },
 };
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-// Avatar et MiniAvatar remplacés par le composant partagé UserAvatar
-
 function StatCard({ icon, value, label, color, sub }) {
   return (
     <div className="prf-stat-card">

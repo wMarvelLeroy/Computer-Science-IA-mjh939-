@@ -1,4 +1,4 @@
-/* ── Search bar ──────────────────────────────────────────────────────────────── */
+/* Search bar */
 .search-bar {
   display: flex;
   align-items: center;
@@ -90,14 +90,14 @@
   font-size: 18px;
 }
 
-/* ── Wrapper (positional context for dropdown) ───────────────────────────────── */
+/* Wrapper */
 .srch-wrap {
   position: relative;
   width: 100%;
   max-width: 600px;
 }
 
-/* ── Loading spinner inside icon ─────────────────────────────────────────────── */
+/* Spinner */
 .srch-spinner {
   display: inline-block;
   width: 18px;
@@ -112,7 +112,7 @@
   to { transform: rotate(360deg); }
 }
 
-/* ── Dropdown panel ──────────────────────────────────────────────────────────── */
+/* Dropdown */
 .srch-dropdown {
   position: absolute;
   top: calc(100% + 6px);
@@ -134,7 +134,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Empty / loading state ───────────────────────────────────────────────────── */
+/* Vide / chargement */
 .srch-empty {
   padding: 20px 16px;
   text-align: center;
@@ -142,7 +142,7 @@
   color: var(--color-text-placeholder);
 }
 
-/* ── Section ─────────────────────────────────────────────────────────────────── */
+/* Section résultats */
 .srch-section {
   padding: 8px 0 4px;
   border-bottom: 1px solid var(--color-border-hr);
@@ -168,7 +168,7 @@
   font-size: 14px;
 }
 
-/* ── Result item ─────────────────────────────────────────────────────────────── */
+/* Résultat */
 .srch-item {
   display: flex;
   align-items: center;
@@ -272,7 +272,7 @@
   text-transform: capitalize;
 }
 
-/* ── Tags row ────────────────────────────────────────────────────────────────── */
+/* Tags */
 .srch-tags-row {
   display: flex;
   flex-wrap: wrap;
@@ -299,7 +299,7 @@
   border-color: var(--color-accent);
 }
 
-/* ── "Voir tous les résultats" footer ───────────────────────────────────────── */
+/* Voir tous */
 .srch-see-all {
   display: flex;
   align-items: center;
@@ -328,7 +328,7 @@
   flex-shrink: 0;
 }
 
-/* ── Responsive ─────────────────────────────────────────────────────────────── */
+/* Responsive */
 @media (max-width: 768px) {
   .search-bar {
     max-width: 100%;

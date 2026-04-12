@@ -35,7 +35,6 @@ function DashboardAdmin() {
 
             setUser(currentUser);
 
-            // Charger les stats globales
             try {
                 const statsResponse = await getStatsGlobal();
                 setStats(statsResponse.data);
@@ -43,7 +42,6 @@ function DashboardAdmin() {
                 console.error('Erreur stats:', err);
             }
 
-            // Charger les demandes en attente
             try {
                 const demandesAuteurResponse = await getAllDemandesAuteur('en_attente');
                 setDemandesAuteur(demandesAuteurResponse.data || []);

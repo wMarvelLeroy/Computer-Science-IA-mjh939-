@@ -3,12 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import './Loader.css';
 
-/**
- * Loader avec timeout automatique.
- * - Après `timeout` ms (défaut 10s) : propose de recharger
- * - prop `error`   : affiche directement l'état d'erreur
- * - prop `onRetry` : callback personnalisé au lieu du reload page
- */
 const Loader = ({ scrollUp = false, timeout = 10000, error = null, onRetry = null }) => {
   const [slow, setSlow] = useState(false);
 
@@ -32,7 +26,6 @@ const Loader = ({ scrollUp = false, timeout = 10000, error = null, onRetry = nul
     else window.location.reload();
   };
 
-  // ── État erreur ──────────────────────────────────────
   if (error) {
     return (
       <div className="loading-container">
@@ -49,7 +42,6 @@ const Loader = ({ scrollUp = false, timeout = 10000, error = null, onRetry = nul
     );
   }
 
-  // ── Chargement trop long ─────────────────────────────
   if (slow) {
     return (
       <div className="loading-container">
@@ -66,7 +58,6 @@ const Loader = ({ scrollUp = false, timeout = 10000, error = null, onRetry = nul
     );
   }
 
-  // ── Chargement normal ────────────────────────────────
   return (
     <div className="loading-container">
       <div className="loader">

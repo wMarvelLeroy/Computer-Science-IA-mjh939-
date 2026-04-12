@@ -7,7 +7,7 @@ const router = express.Router();
 
 const TYPES_ACTIONNABLES = ['restriction', 'auteur_banni', 'article_restreint', 'role_retire'];
 
-// ─── POST / ── Soumettre une demande de réexamination ────────────────────────
+// POST /api/reexamination
 router.post('/', requireAuth, async (req, res) => {
   try {
     const { notification_id, motif } = req.body;
@@ -17,7 +17,6 @@ router.post('/', requireAuth, async (req, res) => {
       return res.status(400).json({ success: false, error: 'notification_id et motif requis' });
     }
 
-    // 1. Vérifier que la notif appartient à l'utilisateur et est actionnable
     const { data: notif, error: notifErr } = await supabase
       .from('notifications')
       .select('id, type, user_id')
@@ -32,7 +31,6 @@ router.post('/', requireAuth, async (req, res) => {
       return res.status(400).json({ success: false, error: 'Ce type de notification ne permet pas de réexamination' });
     }
 
-    // 2. Pas de demande déjà en attente pour cette notif
     const { data: pending } = await supabase
       .from('demandes_reexamination')
       .select('id')
@@ -44,7 +42,7 @@ router.post('/', requireAuth, async (req, res) => {
       return res.status(409).json({ success: false, error: 'Une demande est déjà en attente pour cette notification' });
     }
 
-    // 3. Vérifier le cooldown du dernier refus
+    // cooldown
     const { data: lastRefus } = await supabase
       .from('demandes_reexamination')
       .select('cooldown_jours, traitee_le')
@@ -70,7 +68,6 @@ router.post('/', requireAuth, async (req, res) => {
       }
     }
 
-    // 4. Insérer la demande
     const { data, error } = await supabase
       .from('demandes_reexamination')
       .insert([{ user_id, notification_id, type_sanction: notif.type, motif: motif.trim() }])
@@ -85,7 +82,7 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
-// ─── GET /mes-demandes ── Demandes de l'utilisateur connecté ─────────────────
+// GET /api/reexamination/mes-demandes
 router.get('/mes-demandes', requireAuth, async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -101,7 +98,7 @@ router.get('/mes-demandes', requireAuth, async (req, res) => {
   }
 });
 
-// ─── GET / ── Toutes les demandes (admin) ─────────────────────────────────────
+// GET /api/reexamination (admin)
 router.get('/', requireAuth, async (req, res) => {
   try {
     if (!isAdmin(req)) return res.status(403).json({ success: false, error: 'Accès refusé' });
@@ -121,7 +118,6 @@ router.get('/', requireAuth, async (req, res) => {
     const { data, error } = await query;
     if (error) throw error;
 
-    // Enrichir avec l'email
     const userIds = [...new Set((data || []).map(d => d.user_id).filter(Boolean))];
     const emailMap = {};
     await Promise.all(userIds.map(async (uid) => {
@@ -142,7 +138,7 @@ router.get('/', requireAuth, async (req, res) => {
   }
 });
 
-// ─── PUT /:id/traiter ── Approuver ou refuser (admin) ────────────────────────
+// PUT /api/reexamination/:id/traiter
 router.put('/:id/traiter', requireAuth, async (req, res) => {
   try {
     if (!isAdmin(req)) return res.status(403).json({ success: false, error: 'Accès refusé' });
@@ -152,7 +148,6 @@ router.put('/:id/traiter', requireAuth, async (req, res) => {
       return res.status(400).json({ success: false, error: 'decision doit être approuvee ou refusee' });
     }
 
-    // Récupérer la demande en attente
     const { data: demande, error: fetchErr } = await supabase
       .from('demandes_reexamination')
       .select('*')
@@ -164,7 +159,6 @@ router.put('/:id/traiter', requireAuth, async (req, res) => {
       return res.status(404).json({ success: false, error: 'Demande introuvable ou déjà traitée' });
     }
 
-    // Mettre à jour la demande
     const updateData = {
       statut: decision,
       reponse_admin: reponse?.trim() || null,
@@ -184,12 +178,11 @@ router.put('/:id/traiter', requireAuth, async (req, res) => {
 
     if (updateErr) throw updateErr;
 
-    // ── Actions si approuvée ──────────────────────────────────────────────────
     if (decision === 'approuvee') {
       const msgAdmin = reponse?.trim() || null;
 
       if (demande.type_sanction === 'restriction') {
-        // Lever la restriction active la plus récente
+        // lever restriction
         const { data: restr } = await supabase
           .from('restrictions')
           .select('id')
@@ -211,7 +204,6 @@ router.put('/:id/traiter', requireAuth, async (req, res) => {
         }]);
 
       } else if (demande.type_sanction === 'auteur_banni') {
-        // auteurs.id = profils.id dans ce projet
         await supabase.from('auteurs').update({ est_banni: false }).eq('id', demande.user_id);
 
         await supabase.from('notifications').insert([{
@@ -222,7 +214,7 @@ router.put('/:id/traiter', requireAuth, async (req, res) => {
         }]);
 
       } else {
-        // article_restreint / role_retire → action manuelle, notif de rappel
+        // action manuelle
         await supabase.from('notifications').insert([{
           user_id: demande.user_id,
           type: 'demande_approuvee',
@@ -231,7 +223,6 @@ router.put('/:id/traiter', requireAuth, async (req, res) => {
         }]);
       }
 
-    // ── Actions si refusée ────────────────────────────────────────────────────
     } else {
       let cooldownMsg = '';
       if (cooldown_jours === -1) {
@@ -248,7 +239,6 @@ router.put('/:id/traiter', requireAuth, async (req, res) => {
       }]);
     }
 
-    // Libérer la prise en charge
     await supabase.from('moderations_claims').delete()
       .eq('table_name', 'demandes_reexamination').eq('item_id', req.params.id);
 

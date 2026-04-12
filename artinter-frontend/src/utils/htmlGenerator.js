@@ -19,9 +19,8 @@ export const generateHTML = (data) => {
                 html += `<${tag}>${listItems}</${tag}>`;
                 break;
             case 'image':
-                // Use a default empty alt if no caption, for now.
-                // In ArticleEditor we should have ensured captions or alts
-                html += `<figure class="article-image"><img src="${block.data.url}" alt="${block.data.caption || 'Image'}" /><figcaption>${block.data.caption || ''}</figcaption></figure>`;
+                const imageUrl = block.data.file?.url || block.data.url || '';
+                html += `<figure class="article-image"><img src="${imageUrl}" alt="${block.data.caption || 'Image'}" /><figcaption>${block.data.caption || ''}</figcaption></figure>`;
                 break;
             case 'quote':
                 html += `<blockquote>${block.data.text}</blockquote><cite>${block.data.caption}</cite>`;

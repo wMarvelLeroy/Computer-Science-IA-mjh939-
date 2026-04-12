@@ -90,7 +90,6 @@ router.post('/', async (req, res) => {
       });
     }
     
-    // Vérifier si la catégorie existe déjà
     const { data: existing } = await supabase
       .from('categories')
       .select('id')
@@ -104,7 +103,6 @@ router.post('/', async (req, res) => {
       });
     }
     
-    // Vérifier si une demande existe déjà pour ce slug
     const { data: existingDemande } = await supabase
       .from('demandes_categorie')
       .select('id')
@@ -161,7 +159,7 @@ router.post('/:id/approuver', async (req, res) => {
 router.post('/:id/refuser', async (req, res) => {
   try {
     const { id } = req.params;
-    const { raison } = req.body; // Optionnel : raison du refus
+    const { raison } = req.body;
 
     const { data, error } = await supabase.rpc('refuser_demande_categorie', {
       demande_id: id
@@ -171,7 +169,6 @@ router.post('/:id/refuser', async (req, res) => {
       return res.status(500).json({ success: false, error: error.message });
     }
 
-    // Optionnel : enregistrer la raison du refus
     if (raison) {
       await supabase
         .from('demandes_categorie')

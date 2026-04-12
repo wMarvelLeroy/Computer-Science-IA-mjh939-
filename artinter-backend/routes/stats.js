@@ -6,63 +6,52 @@ const router = express.Router();
 // GET /api/stats - Statistiques globales
 router.get('/', async (req, res) => {
   try {
-    // Compter les articles
     const { count: totalArticles } = await supabase
       .from('articles')
       .select('*', { count: 'exact', head: true });
-    
-    // Compter les articles publiés
+
     const { count: articlesPublies } = await supabase
       .from('articles')
       .select('*', { count: 'exact', head: true })
       .eq('est_publie', true);
-    
-    // Compter les utilisateurs
+
     const { count: totalUsers } = await supabase
       .from('profils')
       .select('*', { count: 'exact', head: true });
-    
-    // Compter les auteurs
+
     const { count: totalAuteurs } = await supabase
       .from('profils')
       .select('*', { count: 'exact', head: true })
       .eq('role', 'auteur');
-    
-    // Compter les admins
+
     const { count: totalAdmins } = await supabase
       .from('profils')
       .select('*', { count: 'exact', head: true })
       .eq('role', 'admin');
-    
-    // Compter les commentaires
+
     const { count: totalCommentaires } = await supabase
       .from('commentaires')
       .select('*', { count: 'exact', head: true });
-    
-    // Compter les likes
+
     const { count: totalLikes } = await supabase
       .from('likes')
       .select('*', { count: 'exact', head: true });
-    
-    // Compter les demandes en attente
+
     const { count: demandesEnAttente } = await supabase
       .from('demandes_auteur')
       .select('*', { count: 'exact', head: true })
       .eq('statut', 'en_attente');
-    
-    // Compter les catégories
+
     const { count: totalCategories } = await supabase
       .from('categories')
       .select('*', { count: 'exact', head: true });
 
-    // Somme des vues sur articles publiés
     const { data: vuesTotalesData } = await supabase
       .from('articles')
       .select('vues')
       .eq('est_publie', true);
     const totalVues = (vuesTotalesData || []).reduce((s, a) => s + (a.vues || 0), 0);
 
-    // Top 5 articles par vues
     const { data: topRaw } = await supabase
       .from('articles')
       .select('id, titre, slug, vues, id_auteur')
@@ -124,20 +113,17 @@ router.get('/', async (req, res) => {
 router.get('/article/:articleId', async (req, res) => {
   try {
     const { articleId } = req.params;
-    
-    // Compter les likes
+
     const { count: likes } = await supabase
       .from('likes')
       .select('*', { count: 'exact', head: true })
       .eq('article_id', articleId);
-    
-    // Compter les commentaires
+
     const { count: commentaires } = await supabase
       .from('commentaires')
       .select('*', { count: 'exact', head: true })
       .eq('article_id', articleId);
-    
-    // Récupérer les vues
+
     const { data: article } = await supabase
       .from('articles')
       .select('vues, created_at, date_publication')
@@ -164,7 +150,6 @@ router.get('/auteur/:auteurId', async (req, res) => {
   try {
     const { auteurId } = req.params;
 
-    // Articles publiés et brouillons
     const [{ data: allArticles }, { count: totalArticles }] = await Promise.all([
       supabase
         .from('articles')

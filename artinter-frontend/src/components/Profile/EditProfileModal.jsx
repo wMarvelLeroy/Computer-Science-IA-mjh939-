@@ -43,7 +43,6 @@ function EditProfileModal({ isOpen, onClose, user, onProfileUpdated }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Charger les données du profil quand le modal s'ouvre
   useEffect(() => {
     if (isOpen && user?.profil) {
       setFormData({

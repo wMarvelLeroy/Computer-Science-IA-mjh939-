@@ -91,18 +91,8 @@ function DashboardLecteur() {
     return <Loader />;
   }
 
-  // Déterminer si l'accès auteur a été révoqué (demande approuvée mais rôle lecteur)
+  // révoqué = approuvée mais rôle lecteur
   const isRevoked = demande?.statut === 'approuvee' && user?.profil?.role !== 'auteur';
-  
-  // On affiche le formulaire (ou le bouton pour l'ouvrir) si :
-  // 1. Pas de demande
-  // 2. Demande existante mais accès révoqué
-  // 3. Demande refusée (la logique actuelle l'affiche dans le "else", mais on pourrait vouloir permettre de refaire une demande directement. 
-  //    Pour l'instant, le bloc "refusée" permet de voir le motif, donc on le laisse dans le "else" sauf si on veut changer ce comportement.
-  //    Mais l'utilisateur a demandé de pouvoir refaire une demande.
-  //    La modification backend permet de refaire une demande si refusée.
-  //    Mais le frontend actuel affiche juste le statut "refusée".
-  //    On va permettre de refaire une demande aussi si c'est refusé.
   const canMakeRequest = !demande || isRevoked || demande.statut === 'refusee';
 
   return (

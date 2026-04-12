@@ -27,7 +27,6 @@ const SearchForm = ({ placeholder = 'Rechercher…', onNavigate }) => {
   const wrapRef  = React.useRef(null);
   const timerRef = React.useRef(null);
 
-  // Close dropdown on click outside
   React.useEffect(() => {
     const handler = (e) => {
       if (wrapRef.current && !wrapRef.current.contains(e.target)) {
@@ -38,7 +37,6 @@ const SearchForm = ({ placeholder = 'Rechercher…', onNavigate }) => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Debounced live search
   React.useEffect(() => {
     clearTimeout(timerRef.current);
     if (value.trim().length < 2) { setResults(null); setLoading(false); return; }

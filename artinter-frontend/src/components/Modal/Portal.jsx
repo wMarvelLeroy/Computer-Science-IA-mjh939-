@@ -1,5 +1,6 @@
 import { createPortal } from 'react-dom';
 
 export default function Portal({ children }) {
-  return createPortal(children, document.body);
+  const target = document.querySelector('.container') || document.body;
+  return createPortal(children, target);
 }

@@ -90,7 +90,6 @@ router.post('/', async (req, res) => {
       });
     }
     
-    // Vérifier si une demande existe déjà
     const { data: existing } = await supabase
       .from('demandes_auteur')
       .select('id, statut')
@@ -98,7 +97,6 @@ router.post('/', async (req, res) => {
       .maybeSingle();
     
     if (existing) {
-      // Si une demande est déjà en attente, on bloque
       if (existing.statut === 'en_attente') {
         return res.status(409).json({
           success: false,
@@ -106,15 +104,13 @@ router.post('/', async (req, res) => {
         });
       }
       
-      // Si la demande existe mais n'est pas en attente (refusée ou approuvée mais utilisateur rétrogradé)
-      // On met à jour la demande existante pour la remettre en attente
       const { data, error } = await supabase
         .from('demandes_auteur')
         .update({ 
-          motivation, 
+          motivation,
           statut: 'en_attente',
-          created_at: new Date().toISOString(), // Mise à jour de la date
-          raison_refus: null // Effacer l'ancienne raison de refus
+          created_at: new Date().toISOString(),
+          raison_refus: null
         })
         .eq('id', existing.id)
         .select()
@@ -127,7 +123,6 @@ router.post('/', async (req, res) => {
       return res.status(200).json({ success: true, message: 'Demande mise à jour', data });
     }
     
-    // Sinon, on crée une nouvelle demande
     const { data, error } = await supabase
       .from('demandes_auteur')
       .insert([{ user_id, motivation }])
@@ -149,7 +144,6 @@ router.post('/:id/approuver', async (req, res) => {
   try {
     const { id } = req.params;
     
-    // 1. Get the demande first
     const { data: demande, error: fetchError } = await supabase
       .from('demandes_auteur')
       .select('*')
@@ -160,7 +154,6 @@ router.post('/:id/approuver', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Demande non trouvée' });
     }
     
-    // 2. Update demande status
     const { error: updateError } = await supabase
       .from('demandes_auteur')
       .update({ statut: 'approuvee' })
@@ -171,7 +164,6 @@ router.post('/:id/approuver', async (req, res) => {
       return res.status(500).json({ success: false, error: updateError.message });
     }
     
-    // 3. Create entry in auteurs table (new schema: only author-specific data)
     const { data: auteurData, error: auteurError } = await supabase
       .from('auteurs')
       .upsert([{
@@ -186,7 +178,6 @@ router.post('/:id/approuver', async (req, res) => {
       return res.status(500).json({ success: false, error: auteurError.message });
     }
     
-    // 4. Update profils: set role='auteur' and link to auteur_id
     const { error: roleError } = await supabase
       .from('profils')
       .update({
@@ -197,10 +188,8 @@ router.post('/:id/approuver', async (req, res) => {
 
     if (roleError) {
       console.error('Erreur update profil:', roleError);
-      // Don't fail completely
     }
 
-    // 5. Notify user
     await supabase.from('notifications').insert([{
       user_id: demande.user_id,
       type: 'demande_approuvee',
@@ -208,7 +197,6 @@ router.post('/:id/approuver', async (req, res) => {
       message: 'Félicitations ! Votre demande pour devenir auteur a été approuvée. Vous pouvez désormais créer et publier des articles sur la plateforme.'
     }]);
 
-    // 6. Libérer la prise en charge
     await supabase.from('moderations_claims').delete()
       .eq('table_name', 'demandes_auteur').eq('item_id', id);
 

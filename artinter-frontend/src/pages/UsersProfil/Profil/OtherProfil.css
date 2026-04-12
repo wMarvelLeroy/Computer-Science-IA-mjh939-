@@ -1,7 +1,4 @@
-/* ══════════════════════════════════════════
-   PROFIL PUBLIC — OtherProfil
-══════════════════════════════════════════ */
-
+﻿/* Profil public */
 .op-page {
   max-width: 860px;
   margin: 0 auto;
@@ -10,7 +7,7 @@
   gap: 20px;
 }
 
-/* ── Bouton retour ── */
+/* Bouton retour */
 .op-back {
   display: inline-flex;
   align-items: center;
@@ -27,7 +24,7 @@
 }
 .op-back:hover { color: var(--color-accent); }
 
-/* ── Carte principale ── */
+/* Carte principale */
 .op-card {
   background: var(--color-bg-sidebar);
   border: 1px solid var(--color-border-hr);
@@ -45,7 +42,7 @@
   padding: 0 32px 24px;
 }
 
-/* ── Ligne avatar + actions ── */
+/* Ligne avatar + actions */
 .op-top-row {
   display: flex;
   align-items: flex-end;
@@ -80,8 +77,9 @@
   object-fit: cover;
 }
 
-/* ── Actions (compteurs + bouton) ── */
+/* Actions (compteurs + bouton) */
 .op-actions {
+  transform: translateY(10px);
   display: flex;
   align-items: center;
   gap: 20px;
@@ -111,7 +109,7 @@
   color: var(--color-text-placeholder);
 }
 
-/* ── Bouton suivre ── */
+/* Bouton suivre */
 .op-follow-area {
   position: relative;
 }
@@ -138,16 +136,17 @@
 .op-follow-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .op-follow-btn--following {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-  border: 1px solid #ef4444;
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid #10b981;
 }
 .op-follow-btn--following:hover:not(:disabled) {
-  background: #ef4444;
-  color: white;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-color: #ef4444;
 }
 
-/* ── Overlay connexion requise ── */
+/* Overlay connexion requise */
 .op-overlay {
   position: fixed;
   inset: 0;
@@ -268,7 +267,7 @@
   background: var(--color-bg-primary);
 }
 
-/* ── Infos ── */
+/* Infos */
 .op-info {
   display: flex;
   flex-direction: column;
@@ -315,7 +314,7 @@
   line-height: 1.6;
 }
 
-/* ── Réseaux sociaux ── */
+/* Réseaux sociaux */
 .op-socials {
   display: flex;
   flex-wrap: wrap;
@@ -346,7 +345,7 @@
 .op-social-chip--youtube   { background: #FF0000; }
 .op-social-chip--website   { background: #10b981; }
 
-/* ── Article mis en avant ── */
+/* Article mis en avant */
 .op-featured {
   display: block;
   background: var(--color-bg-sidebar);
@@ -437,7 +436,7 @@
   gap: 5px;
 }
 
-/* ── Section articles ── */
+/* Section articles */
 .op-section {
   background: var(--color-bg-sidebar);
   border: 1px solid var(--color-border-hr);
@@ -466,7 +465,7 @@
   border-radius: 20px;
 }
 
-/* ── Grille articles ── */
+/* Grille articles */
 .op-articles-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -558,7 +557,7 @@
   gap: 3px;
 }
 
-/* ── Vide ── */
+/* Vide */
 .op-empty {
   display: flex;
   flex-direction: column;
@@ -570,7 +569,7 @@
 }
 .op-empty svg { font-size: 2rem; }
 
-/* ── Pagination ── */
+/* Pagination */
 .op-pagination {
   display: flex;
   align-items: center;
@@ -607,7 +606,7 @@
   text-align: center;
 }
 
-/* ── Not found ── */
+/* Not found */
 .op-notfound {
   display: flex;
   flex-direction: column;
@@ -638,7 +637,7 @@
   margin-top: 4px;
 }
 
-/* ── Responsive ── */
+/* Responsive */
 @media (max-width: 640px) {
   .op-content { padding: 0 16px 20px; }
 
@@ -649,6 +648,7 @@
   }
 
   .op-actions {
+    transform: translateY(0px);
     width: 100%;
     justify-content: space-between;
     margin-top: 12px;

@@ -223,7 +223,6 @@ const ArticlesCatalog = () => {
     }, { replace: true });
   };
 
-  // Toggle one category in the multi-select list (stays on articles tab)
   const toggleCategory = (slug) => {
     setSearchParams(prev => {
       const next = new URLSearchParams(prev);
@@ -237,7 +236,6 @@ const ArticlesCatalog = () => {
     }, { replace: true });
   };
 
-  // Click from Categories tab → add category + switch to articles tab
   const selectCategoryAndGo = (slug) => {
     setSearchParams(prev => {
       const next = new URLSearchParams(prev);
@@ -250,7 +248,6 @@ const ArticlesCatalog = () => {
     }, { replace: true });
   };
 
-  // Toggle one tag in the multi-select list (stays on tags tab)
   const toggleTag = (tag) => {
     setSearchParams(prev => {
       const next = new URLSearchParams(prev);
@@ -481,7 +478,6 @@ const ArticlesCatalog = () => {
         ) : <EmptyState icon="category" label="Aucune catégorie trouvée" />;
 
       case 'tags': {
-        // Count of articles matching current tag selection (for feedback)
         const previewCount = selectedTags.length > 0
           ? articles.filter(a => (a.tags || []).some(t => selectedTags.includes(t))).length
           : null;

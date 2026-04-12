@@ -32,7 +32,6 @@ router.get('/', requireAuth, async (req, res) => {
       throw error;
     }
 
-    // Enrichir chaque signalement avec l'email de connexion de l'auteur du signalement
     const userIds = [...new Set(data.map(s => s.user_id).filter(Boolean))];
     const emailMap = {};
     await Promise.all(
@@ -114,7 +113,6 @@ router.put('/:id/traiter', requireAuth, async (req, res) => {
     }
     const note = req.body?.note?.trim() || null;
 
-    // Récupérer le signalement pour connaître le signalant et l'article
     const { data: sig } = await supabase
       .from('signalements')
       .select('user_id, articles!signalements_article_id_fkey(titre)')
@@ -130,7 +128,6 @@ router.put('/:id/traiter', requireAuth, async (req, res) => {
 
     if (error) throw error;
 
-    // Notifier le signalant
     if (sig?.user_id) {
       const articleTitre = sig.articles?.titre || 'un article';
       await supabase.from('notifications').insert([{

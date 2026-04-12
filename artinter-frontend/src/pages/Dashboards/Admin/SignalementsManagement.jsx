@@ -15,7 +15,6 @@ import {
 import { useAuth } from '../../../contexts/AuthContext.jsx';
 import Loader from '../../../components/Loader/Loader.jsx';
 import Portal from '../../../components/Modal/Portal.jsx';
-import AuthorPreviewCard from '../../../components/AuthorPreviewCard/AuthorPreviewCard.jsx';
 import ClaimSection, { ClaimBadge } from '../../../components/ClaimSection/ClaimSection.jsx';
 import './AdminPages.css';
 import './Signalements.css';
@@ -66,7 +65,6 @@ export default function SignalementsManagement() {
   const [search, setSearch]             = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [toast, setToast]               = useState(null);
-  const [previewAuthorId, setPreviewAuthorId] = useState(null);
   const [claimsMap, setClaimsMap]       = useState({}); // { [item_id]: claim }
 
   const isClaimedByMe = (id) => {
@@ -135,7 +133,6 @@ export default function SignalementsManagement() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Nombre de signalements par article (articles seulement)
   const articleSignalCount = signalements.reduce((acc, s) => {
     if (s._type === 'article' && s.article_id) acc[s.article_id] = (acc[s.article_id] || 0) + 1;
     return acc;
@@ -473,7 +470,7 @@ export default function SignalementsManagement() {
               <div className="sig-detail-section-title">Signalé par</div>
               <button
                 className="sig-detail-user sig-detail-user-btn"
-                onClick={() => selected.user_id && setPreviewAuthorId(selected.user_id)}
+                onClick={() => selected.user_id && window.open(`/profil/${selected.user_id}`, '_blank')}
                 title="Voir le profil"
               >
                 <div className="sig-detail-user-avatar">
@@ -622,10 +619,6 @@ export default function SignalementsManagement() {
       )}
 
       {/* Prévisualisation profil */}
-      <AuthorPreviewCard
-        authorId={previewAuthorId}
-        onClose={() => setPreviewAuthorId(null)}
-      />
 
       {/* Toast */}
       {toast && (

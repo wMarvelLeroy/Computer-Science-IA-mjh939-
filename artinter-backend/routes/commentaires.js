@@ -8,7 +8,6 @@ const router = express.Router();
 const SPAM_LIMIT      = 10;  // max commentaires par fenêtre
 const SPAM_WINDOW_MIN = 60;  // fenêtre en minutes
 
-// Helper : enrichir une liste de commentaires avec les profils
 async function attachProfils(comments) {
   if (!comments || comments.length === 0) return comments;
   const userIds = [...new Set(comments.map(c => c.user_id))];
@@ -20,9 +19,7 @@ async function attachProfils(comments) {
   return comments.map(c => ({ ...c, profils: profilMap[c.user_id] || null }));
 }
 
-// ─────────────────────────────────────────
 // GET /api/commentaires/article/:articleId
-// ─────────────────────────────────────────
 router.get('/article/:articleId', async (req, res) => {
   try {
     const { articleId } = req.params;
@@ -42,9 +39,7 @@ router.get('/article/:articleId', async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────
 // POST /api/commentaires
-// ─────────────────────────────────────────
 router.post('/', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -54,7 +49,6 @@ router.post('/', requireAuth, async (req, res) => {
       return res.status(400).json({ success: false, error: 'article_id et contenu requis' });
     }
 
-    // Vérifier que le compte peut commenter (restriction globale)
     const { data: profil } = await supabase
       .from('profils')
       .select('peut_commenter')
@@ -65,7 +59,6 @@ router.post('/', requireAuth, async (req, res) => {
       return res.status(403).json({ success: false, error: 'Votre compte ne peut plus publier de commentaires.' });
     }
 
-    // Vérifier restriction sur cet article spécifiquement
     const { data: articleBans } = await supabase
       .from('restrictions')
       .select('details')
@@ -99,7 +92,6 @@ router.post('/', requireAuth, async (req, res) => {
       });
     }
 
-    // Vérifier le parent si c'est une réponse
     if (parent_id) {
       const { data: parent } = await supabase
         .from('commentaires')
@@ -130,10 +122,7 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────
 // PUT /api/commentaires/:id
-// Seul le propriétaire peut modifier
-// ─────────────────────────────────────────
 router.put('/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -169,10 +158,7 @@ router.put('/:id', requireAuth, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────
 // DELETE /api/commentaires/:id
-// Propriétaire OU admin/super_admin uniquement
-// ─────────────────────────────────────────
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -207,10 +193,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────
 // POST /api/commentaires/:id/moderer
-// Admin/super_admin uniquement — actions : supprimer | restreindre | restreindre_user_article
-// ─────────────────────────────────────────
 router.post('/:id/moderer', requireAuth, async (req, res) => {
   const role = req.profil?.role;
   if (!['admin', 'super_admin'].includes(role)) {
@@ -233,7 +216,6 @@ router.post('/:id/moderer', requireAuth, async (req, res) => {
 
     if (!comment) return res.status(404).json({ success: false, error: 'Commentaire introuvable' });
 
-    // ── Supprimer le commentaire ──
     if (action === 'supprimer') {
       const { error } = await supabase.from('commentaires').delete().eq('id', id);
       if (error) return res.status(500).json({ success: false, error: error.message });
@@ -247,7 +229,6 @@ router.post('/:id/moderer', requireAuth, async (req, res) => {
       return res.json({ success: true, action, message: 'Commentaire supprimé' });
     }
 
-    // ── Restreindre le commentaire (masquer) ──
     if (action === 'restreindre') {
       const { error } = await supabase
         .from('commentaires')
@@ -265,7 +246,6 @@ router.post('/:id/moderer', requireAuth, async (req, res) => {
       return res.json({ success: true, action, message: 'Commentaire restreint' });
     }
 
-    // ── Restreindre l'utilisateur sur cet article ──
     if (action === 'restreindre_user_article') {
       const { data: article } = await supabase
         .from('articles')
@@ -293,7 +273,6 @@ router.post('/:id/moderer', requireAuth, async (req, res) => {
 
       if (error) return res.status(500).json({ success: false, error: error.message });
 
-      // Notifier l'utilisateur
       await supabase.from('notifications').insert([{
         user_id: comment.user_id,
         type: 'restriction',
@@ -315,10 +294,7 @@ router.post('/:id/moderer', requireAuth, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────
 // POST /api/commentaires/:id/signaler
-// Tout membre connecté peut signaler
-// ─────────────────────────────────────────
 router.post('/:id/signaler', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -336,7 +312,6 @@ router.post('/:id/signaler', requireAuth, async (req, res) => {
       return res.status(400).json({ success: false, error: 'Vous ne pouvez pas signaler votre propre commentaire' });
     }
 
-    // Vérifier si déjà signalé par cet utilisateur
     const { data: existing } = await supabase
       .from('signalements_commentaires')
       .select('id')
@@ -364,10 +339,7 @@ router.post('/:id/signaler', requireAuth, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────
 // GET /api/commentaires/signalements
-// Admin uniquement — liste tous les signalements de commentaires
-// ─────────────────────────────────────────
 router.get('/signalements', requireAuth, async (req, res) => {
   const role = req.profil?.role;
   if (!['admin', 'super_admin'].includes(role)) {
@@ -385,24 +357,20 @@ router.get('/signalements', requireAuth, async (req, res) => {
     if (error) throw error;
     if (!sigs || sigs.length === 0) return res.json({ success: true, data: [] });
 
-    // Enrichir profils (signalants)
     const userIds = [...new Set(sigs.map(s => s.user_id).filter(Boolean))];
     const { data: profils } = await supabase.from('profils').select('id, nom, avatar_url').in('id', userIds);
     const profilMap = Object.fromEntries((profils || []).map(p => [p.id, p]));
 
-    // Enrichir commentaires
     const commentIds = [...new Set(sigs.map(s => s.commentaire_id).filter(Boolean))];
     const { data: comms } = await supabase.from('commentaires').select('id, contenu, user_id, article_id').in('id', commentIds);
     const commMap = Object.fromEntries((comms || []).map(c => [c.id, c]));
 
-    // Enrichir auteurs des commentaires
     const commUserIds = [...new Set((comms || []).map(c => c.user_id).filter(Boolean))];
     const { data: commAuteurs } = commUserIds.length > 0
       ? await supabase.from('profils').select('id, nom').in('id', commUserIds)
       : { data: [] };
     const commAuteurMap = Object.fromEntries((commAuteurs || []).map(p => [p.id, p]));
 
-    // Enrichir articles
     const articleIds = [...new Set((comms || []).map(c => c.article_id).filter(Boolean))];
     const { data: articles } = articleIds.length > 0
       ? await supabase.from('articles').select('id, titre, slug').in('id', articleIds)
@@ -428,9 +396,7 @@ router.get('/signalements', requireAuth, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────
 // PUT /api/commentaires/signalements/:id/traiter
-// ─────────────────────────────────────────
 router.put('/signalements/:id/traiter', requireAuth, async (req, res) => {
   const role = req.profil?.role;
   if (!['admin', 'super_admin'].includes(role)) {
@@ -474,9 +440,7 @@ router.put('/signalements/:id/traiter', requireAuth, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────
 // PUT /api/commentaires/signalements/:id/rejeter
-// ─────────────────────────────────────────
 router.put('/signalements/:id/rejeter', requireAuth, async (req, res) => {
   const role = req.profil?.role;
   if (!['admin', 'super_admin'].includes(role)) {
@@ -517,9 +481,7 @@ router.put('/signalements/:id/rejeter', requireAuth, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────
 // DELETE /api/commentaires/signalements/:id
-// ─────────────────────────────────────────
 router.delete('/signalements/:id', requireAuth, async (req, res) => {
   const role = req.profil?.role;
   if (!['admin', 'super_admin'].includes(role)) {
@@ -535,10 +497,7 @@ router.delete('/signalements/:id', requireAuth, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────
 // PATCH /api/commentaires/restrict/:userId
-// Admin uniquement — restreindre globalement les commentaires
-// ─────────────────────────────────────────
 router.patch('/restrict/:userId', requireAuth, async (req, res) => {
   if (!['admin', 'super_admin'].includes(req.profil?.role)) {
     return res.status(403).json({ success: false, error: 'Accès réservé aux administrateurs' });

@@ -1,10 +1,16 @@
+.container.dark .top-navbar {
+  background: rgba(31, 41, 55, 0.88);
+}
+
 .top-navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: 70px;
-  background: var(--color-bg-sidebar);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--color-border-hr);
   box-shadow: 0 2px 4px var(--color-shadow);
   display: flex;
@@ -15,7 +21,7 @@
   justify-content: space-between;
 }
 
-/* Bouton hamburger mobile */
+/* Mobile menu */
 .mobile-menu-btn {
   display: none;
   width: 40px;
@@ -35,7 +41,7 @@
   background: var(--color-hover-secondary);
 }
 
-/* Logo dans la navbar — visible uniquement quand sidebar collapsed */
+/* Logo */
 .navbar-logo {
   display: flex;
   align-items: center;
@@ -65,7 +71,7 @@
   white-space: nowrap;
 }
 
-/* Barre de recherche centrale */
+/* Search */
 .navbar-search {
   flex: 1;
   max-width: 560px;
@@ -73,12 +79,11 @@
   display: flex;
   align-items: center;
   margin: 0 auto;
-  /* Allow search dropdown to overflow navbar bounds */
   overflow: visible;
   position: relative;
 }
 
-/* Actions à droite */
+/* Actions */
 .navbar-actions {
   display: flex;
   align-items: center;
@@ -86,7 +91,7 @@
   flex-shrink: 0;
 }
 
-/* Boutons d'action (icônes) */
+/* Action buttons */
 .navbar-btn {
   position: relative;
   width: 40px;
@@ -111,7 +116,7 @@
   font-size: 22px;
 }
 
-/* Bouton avatar — forme circulaire, anneau au hover */
+/* Avatar */
 .navbar-btn--avatar {
   border-radius: 50%;
   background: transparent;
@@ -124,12 +129,12 @@
   box-shadow: 0 0 0 2px var(--color-accent);
 }
 
-/* Bouton recherche mobile — caché sur desktop */
+/* Mobile search */
 .search-mobile-btn {
   display: none;
 }
 
-/* Badge (notifications) */
+/* Badge */
 .badge {
   position: absolute;
   top: -4px;
@@ -144,9 +149,7 @@
   text-align: center;
 }
 
-/* ── RESPONSIVE ── */
-
-/* Tablette et moins */
+/* Responsive */
 @media (max-width: 768px) {
   .top-navbar {
     padding: 0 16px;
@@ -166,13 +169,12 @@
   }
 
   .navbar-logo {
-    /* Sur mobile, toujours visible pour identifier le site */
     opacity: 1;
     pointer-events: auto;
   }
 }
 
-/* Mobile étroit */
+/* Mobile */
 @media (max-width: 480px) {
   .top-navbar {
     padding: 0 12px;

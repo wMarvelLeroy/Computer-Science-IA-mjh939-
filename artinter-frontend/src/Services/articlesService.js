@@ -1,13 +1,19 @@
 // src/services/articlesService.js
 import * as api from '../api/api.js';
 
+const stripHtml = (html) => {
+  if (!html) return '';
+  return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+};
+
 // Helper pour transformer les données backend (snake_case) vers frontend (camelCase/structure)
 const transformArticleData = (backendArticle) => {
+  const plainText = stripHtml(backendArticle.contenu_html);
   return {
     id:           backendArticle.id,
     authorId:     backendArticle.id_auteur,
     title:        backendArticle.titre,
-    description:  backendArticle.contenu_html ? backendArticle.contenu_html.substring(0, 150) + '...' : '',
+    description:  plainText.length > 150 ? plainText.substring(0, 150) + '…' : plainText,
     category:     backendArticle.categories?.nom  || 'Non classé',
     categorySlug: backendArticle.categories?.slug || null,
     image:        backendArticle.images?.length > 0 ? backendArticle.images[0] : null,

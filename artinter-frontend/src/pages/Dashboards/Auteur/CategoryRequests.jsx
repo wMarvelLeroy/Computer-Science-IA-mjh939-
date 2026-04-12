@@ -69,12 +69,10 @@ function CategoryRequests() {
     if (!slug.trim())          { setError('Le slug est requis.');          return; }
     if (!justification.trim()) { setError('La justification est requise.'); return; }
 
-    // Vérifier doublon dans les catégories existantes
     if (categories.some(c => c.slug === slug || c.nom.toLowerCase() === nom.toLowerCase())) {
       setError('Une catégorie avec ce nom ou ce slug existe déjà.');
       return;
     }
-    // Vérifier doublon dans les demandes en attente
     if (demandes.some(d => d.statut === 'en_attente' && (d.slug === slug || d.nom.toLowerCase() === nom.toLowerCase()))) {
       setError('Vous avez déjà une demande en attente pour cette catégorie.');
       return;

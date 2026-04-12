@@ -20,16 +20,14 @@ const Home = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  // Les 5 derniers articles servent de slides, le reste va dans la grille
   const slides = articles.slice(0, 5);
   const gridArticles = articles.slice(0, 6);
 
-  // Utilisé uniquement par l'intervalle auto — ne reset pas le timer
+  // auto uniquement, sans reset timer
   const nextSlide = React.useCallback(() => {
     setCurrentSlide(prev => (prev + 1) % Math.max(slides.length, 1));
   }, [slides.length]);
 
-  // Fonctions manuelles — reset le compte à rebours
   const resetTimer = () => setTimerKey(k => k + 1);
 
   const goNext = () => {
@@ -131,21 +129,32 @@ const Home = () => {
           <div className="articles-grid">
             {gridArticles.map((article) => (
               <Link key={article.id} to={`/article/${article.slug}`} className="article-card">
-                <div className="card-image-wrapper">
-                  {article.image?.startsWith('#') ? (
-                    <div style={{ backgroundColor: article.image, width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}></div>
-                  ) : (
-                    <img src={article.image} alt={article.title} loading="lazy" />
-                  )}
-                  <Link
-                    to={article.categorySlug ? `/Catalog?categorie=${article.categorySlug}` : '/Catalog'}
-                    className="card-category"
-                    onClick={e => e.stopPropagation()}
-                  >
-                    {article.category}
-                  </Link>
-                </div>
+                {article.image ? (
+                  <div className="card-image-wrapper">
+                    {article.image.startsWith('#') ? (
+                      <div style={{ backgroundColor: article.image, width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}></div>
+                    ) : (
+                      <img src={article.image} alt={article.title} loading="lazy" />
+                    )}
+                    <Link
+                      to={article.categorySlug ? `/Catalog?categorie=${article.categorySlug}` : '/Catalog'}
+                      className="card-category"
+                      onClick={e => e.stopPropagation()}
+                    >
+                      {article.category}
+                    </Link>
+                  </div>
+                ) : null}
                 <div className="card-content">
+                  {!article.image && article.category && (
+                    <Link
+                      to={article.categorySlug ? `/Catalog?categorie=${article.categorySlug}` : '/Catalog'}
+                      className="card-category-text"
+                      onClick={e => e.stopPropagation()}
+                    >
+                      {article.category}
+                    </Link>
+                  )}
                   <h3>{article.title}</h3>
                   <p>{article.description}</p>
                   <span className="card-link">

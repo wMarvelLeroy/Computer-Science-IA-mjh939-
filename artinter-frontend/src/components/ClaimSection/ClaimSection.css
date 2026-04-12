@@ -1,4 +1,4 @@
-/* ── Conteneur commun ─────────────────────────────────────────────────────── */
+/* Claim section */
 .claim-section {
   display: flex;
   align-items: center;
@@ -19,7 +19,7 @@
 .claim-free    { background: var(--color-bg-secondary); }
 .claim-pending { background: rgba(14,165,233,0.06);  border-color: rgba(14,165,233,0.3); }
 
-/* ── Warning < 5 min ─────────────────────────────────────────────────────── */
+/* Warning */
 .claim-warning {
   background: rgba(239,68,68,0.06) !important;
   border-color: rgba(239,68,68,0.35) !important;
@@ -42,7 +42,7 @@
   color: #ef4444;
 }
 
-/* ── Info ─────────────────────────────────────────────────────────────────── */
+/* Info */
 .claim-info {
   display: flex;
   align-items: center;
@@ -64,7 +64,7 @@
 .claim-info span   { font-size: 12px; color: var(--color-text-placeholder); }
 .claim-info > span { font-size: 13px; }
 
-/* ── Avatar ───────────────────────────────────────────────────────────────── */
+/* Avatar */
 .claim-avatar {
   width: 28px;
   height: 28px;
@@ -81,7 +81,7 @@
 }
 .claim-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-/* ── Boutons ──────────────────────────────────────────────────────────────── */
+/* Buttons */
 .claim-take-btn,
 .claim-confirm-btn {
   display: inline-flex;
@@ -157,7 +157,7 @@
 .claim-cancel-btn:hover    { background: var(--color-bg-secondary); }
 .claim-cancel-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* ── Confirmation ─────────────────────────────────────────────────────────── */
+/* Confirmation */
 .claim-confirm-text {
   display: flex;
   align-items: flex-start;
@@ -176,7 +176,7 @@
   margin-top: 4px;
 }
 
-/* ── Messages ─────────────────────────────────────────────────────────────── */
+/* Messages */
 .claim-error {
   font-size: 12.5px;
   color: #ef4444;
@@ -195,7 +195,7 @@
 }
 .claim-contested-msg .material-icons { font-size: 15px; }
 
-/* ── Badge léger pour les cards ───────────────────────────────────────────── */
+/* Badge */
 .claim-badge {
   display: inline-flex;
   align-items: center;

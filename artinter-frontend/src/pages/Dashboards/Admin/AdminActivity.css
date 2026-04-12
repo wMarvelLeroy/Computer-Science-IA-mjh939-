@@ -1,8 +1,6 @@
-/* =========================================================
-   AdminActivity.css — Journal d'activité admin
-   ========================================================= */
+﻿/* AdminActivity.css — Journal d'activité admin */
 
-/* ── Timeline ── */
+/* Timeline */
 .act-timeline {
   display: flex;
   flex-direction: column;
@@ -31,7 +29,7 @@
   flex-direction: column;
 }
 
-/* ── Entry ── */
+/* Entry */
 .act-entry {
   display: flex;
   align-items: flex-start;
@@ -121,7 +119,7 @@
   width: fit-content;
 }
 
-/* ── Empty state ── */
+/* Empty state */
 .act-empty {
   display: flex;
   flex-direction: column;
@@ -137,7 +135,7 @@
   margin: 0;
 }
 
-/* ── Load more ── */
+/* Load more */
 .act-load-more {
   display: flex;
   align-items: center;

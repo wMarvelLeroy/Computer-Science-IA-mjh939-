@@ -32,13 +32,11 @@ export function AuthProvider({ children }) {
         }
 
         try {
-            // Récupérer les infos utilisateur depuis le backend
             const response = await getCurrentUser();
 
             if (response.success && response.data) {
                 setUser(response.data);
                 setIsAuthenticated(true);
-                // Detect role change for notification banner
                 const newRole = response.data.profil?.role;
                 const lastRole = localStorage.getItem('artinter_last_role');
                 if (newRole && newRole !== lastRole && ['auteur', 'admin', 'super_admin'].includes(newRole)) {
@@ -46,21 +44,17 @@ export function AuthProvider({ children }) {
                 }
                 localStorage.setItem('artinter_last_role', newRole || 'lecteur');
             } else {
-                // Token invalide
                 logout();
             }
         } catch (error) {
             console.error('Erreur vérification auth:', error);
             if (error.response?.status === 401) {
-                // Token invalide — nettoyer silencieusement sans rediriger
-                // La SessionExpiredModal gère la redirection via l'événement auth:session-expired
                 setUser(null);
                 setIsAuthenticated(false);
                 setRoleNotif(null);
                 localStorage.removeItem('token');
                 localStorage.removeItem('refresh_token');
             }
-            // Erreur réseau ou serveur → on garde l'état actuel, l'utilisateur peut réessayer
         } finally {
             setLoading(false);
         }
@@ -85,7 +79,6 @@ export function AuthProvider({ children }) {
 
     const dismissRoleNotif = () => setRoleNotif(null);
 
-    // Récupérer le rôle de l'utilisateur
     const getRole = () => {
         return user?.profil?.role || 'lecteur';
     };

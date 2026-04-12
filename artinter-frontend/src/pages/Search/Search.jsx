@@ -170,7 +170,6 @@ function Search() {
     setSearchParams({ q: val });
   };
 
-  // Counts for tab badges
   const counts = data ? {
     tout:       (data.articles?.length || 0) + (data.auteurs?.length || 0) + (data.categories?.length || 0) + (data.profils?.length || 0) + (data.tags?.length || 0),
     articles:   data.articles?.length || 0,

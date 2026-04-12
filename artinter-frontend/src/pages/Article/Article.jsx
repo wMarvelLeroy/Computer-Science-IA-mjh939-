@@ -16,7 +16,7 @@ import {
 import UserAvatar from '../../components/UserAvatar/UserAvatar.jsx';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import Portal from '../../components/Modal/Portal.jsx';
-import AuthorPreviewCard from '../../components/AuthorPreviewCard/AuthorPreviewCard.jsx';
+import ConfirmModal from '../../components/Modal/ConfirmModal.jsx';
 import PageMeta from '../../components/PageMeta/PageMeta.jsx';
 
 const Article = () => {
@@ -30,8 +30,6 @@ const Article = () => {
   const [retryCount, setRetryCount] = React.useState(0);
   const [copied, setCopied] = React.useState(false);
 
-  // Prévisualisation auteur
-  const [previewAuthorId, setPreviewAuthorId] = React.useState(null);
 
   // Modération admin
   const [modConfirm, setModConfirm]     = React.useState(null); // { action: 'restrict'|'delete' }
@@ -50,6 +48,7 @@ const Article = () => {
   const [likesCount,  setLikesCount]  = React.useState(0);
   const [isLiked,     setIsLiked]     = React.useState(false);
   const [likeLoading, setLikeLoading] = React.useState(false);
+  const cachedLikesRef = React.useRef([]);
 
   // Commentaires
   const [commentaires,    setCommentaires]    = React.useState([]);
@@ -78,14 +77,14 @@ const Article = () => {
   const [signalCommentSuccess, setSignalCommentSuccess] = React.useState(false);
 
   // Follow auteur
-  const [isFollowingAuthor, setIsFollowingAuthor] = React.useState(false);
-  const [followLoading,     setFollowLoading]     = React.useState(false);
-  const [authorFollowers,   setAuthorFollowers]   = React.useState(0);
+  const [isFollowingAuthor,  setIsFollowingAuthor]  = React.useState(false);
+  const [followLoading,      setFollowLoading]      = React.useState(false);
+  const [authorFollowers,    setAuthorFollowers]     = React.useState(0);
+  const [showUnfollowModal,  setShowUnfollowModal]  = React.useState(false);
 
   // Overlay login
   const [loginOverlay, setLoginOverlay] = React.useState(false);
 
-  // Utilisateur connecté (depuis localStorage — pour l'ID auteur uniquement)
   const currentUser = React.useMemo(() => {
     try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch { return null; }
   }, []);
@@ -122,6 +121,7 @@ const Article = () => {
           if (commentsRes.status === 'fulfilled') setCommentaires(commentsRes.value?.data || []);
           if (likesRes.status === 'fulfilled') {
             const likesData = likesRes.value?.data || [];
+            cachedLikesRef.current = likesData;
             setLikesCount(likesData.length);
             if (user?.id) setIsLiked(likesData.some(l => l.user_id === user.id));
           }
@@ -148,11 +148,16 @@ const Article = () => {
     }
   }, [slug, retryCount, user?.id]);
 
-  // Lightbox & Gallery logic for Reader View
+  // Si l'utilisateur arrive après le chargement de l'article (auth async),
+  // recompute isLiked sans refaire d'appel API
+  React.useEffect(() => {
+    if (!user?.id) return;
+    setIsLiked(cachedLikesRef.current.some(l => l.user_id === user.id));
+  }, [user?.id]);
+
   React.useEffect(() => {
     if (loading || !article) return;
 
-    // Attach click listeners to gallery images
     const handleImageClick = (e) => {
         const src = e.target.src;
         if (src) {
@@ -160,9 +165,7 @@ const Article = () => {
         }
     };
 
-    // Delay slightly to ensure DOM is rendered
     const timer = setTimeout(() => {
-        // Select both gallery images AND standard block images
         const images = document.querySelectorAll('.article-content img');
         images.forEach(img => {
             img.style.cursor = 'zoom-in';
@@ -172,7 +175,7 @@ const Article = () => {
 
     return () => {
         clearTimeout(timer);
-        const images = document.querySelectorAll('.article-content img'); // Same selector for cleanup
+        const images = document.querySelectorAll('.article-content img');
         images.forEach(img => img.removeEventListener('click', handleImageClick));
     };
   }, [article, loading]);
@@ -355,7 +358,6 @@ const Article = () => {
   const handleDeleteComment = async (id) => {
     try {
       await deleteCommentaire(id);
-      // Supprimer le commentaire ET toutes ses réponses localement
       setCommentaires(prev => prev.filter(c => c.id !== id && c.parent_id !== id));
     } catch { /* ignore */ }
   };
@@ -405,17 +407,21 @@ const Article = () => {
   const handleFollowAuthor = async () => {
     if (!user) { setLoginOverlay(true); return; }
     if (followLoading) return;
+    if (isFollowingAuthor) { setShowUnfollowModal(true); return; }
     setFollowLoading(true);
     try {
-      if (isFollowingAuthor) {
-        await unfollowUser(article.authorId);
-        setIsFollowingAuthor(false);
-        setAuthorFollowers(c => c - 1);
-      } else {
-        await followUser(article.authorId);
-        setIsFollowingAuthor(true);
-        setAuthorFollowers(c => c + 1);
-      }
+      await followUser(article.authorId);
+      setIsFollowingAuthor(true);
+      setAuthorFollowers(c => c + 1);
+    } catch { /* ignore */ } finally { setFollowLoading(false); }
+  };
+
+  const handleUnfollowAuthor = async () => {
+    setFollowLoading(true);
+    try {
+      await unfollowUser(article.authorId);
+      setIsFollowingAuthor(false);
+      setAuthorFollowers(c => c - 1);
     } catch { /* ignore */ } finally { setFollowLoading(false); }
   };
 
@@ -502,7 +508,7 @@ const Article = () => {
           <div className="article-meta">
             <button
               className="author-info author-info-clickable"
-              onClick={() => article.authorId && setPreviewAuthorId(article.authorId)}
+              onClick={() => article.authorId && navigate(`/profil/${article.authorId}`)}
               title="Voir le profil de l'auteur"
             >
               {article.author?.avatar ? (
@@ -557,13 +563,15 @@ const Article = () => {
         </header>
 
         {/* IMAGE PRINCIPALE */}
+        {article.image && (
         <div className="article-image-container">
-          {article.image && article.image.startsWith('#') ? (
+          {article.image.startsWith('#') ? (
               <div className="article-main-image" style={{ backgroundColor: article.image, minHeight: '400px', width: '100%', borderRadius: '12px' }}></div>
           ) : (
               <img src={article.image} alt={article.title} className="article-main-image" />
           )}
         </div>
+        )}
 
         {/* CONTENU HTML */}
         <div className="article-content" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content) }} />
@@ -649,7 +657,7 @@ const Article = () => {
           <div className="aac-left">
             <button
               className="aac-avatar"
-              onClick={() => setPreviewAuthorId(article.authorId)}
+              onClick={() => navigate(`/profil/${article.authorId}`)}
               title="Voir le profil"
             >
               {article.author?.avatar
@@ -658,7 +666,7 @@ const Article = () => {
               }
             </button>
             <div className="aac-info">
-              <button className="aac-name" onClick={() => setPreviewAuthorId(article.authorId)}>
+              <button className="aac-name" onClick={() => navigate(`/profil/${article.authorId}`)}>
                 {article.author?.name || 'Auteur inconnu'}
               </button>
               {article.author?.bio && (
@@ -694,11 +702,10 @@ const Article = () => {
       {(() => {
         const REPLIES_PAGE = 10;
 
-        // Vérifie si un commentaire parent a reçu une réponse de l'auteur
         const hasAuthorReply = (parentId) =>
           commentaires.some(c => c.parent_id === parentId && c.user_id === article.authorId);
 
-        // Commentaires racines : avec réponse auteur en premier (décroissant), puis sans (décroissant)
+        // réponse auteur en premier
         const parentComments = commentaires
           .filter(c => !c.parent_id)
           .sort((a, b) => {
@@ -790,7 +797,6 @@ const Article = () => {
           const isEditing = editingId === c.id;
           const isArticleAuthor = c.user_id === article.authorId;
 
-          // Commentaire restreint — placeholder pour les non-admins
           if (c.restreint && !isAdminRole) {
             return (
               <div className="aci-body aci-restricted">
@@ -965,9 +971,15 @@ const Article = () => {
       <SimilarArticlesSection articles={similarArticles} />
 
       {/* PRÉVISUALISATION AUTEUR */}
-      <AuthorPreviewCard
-        authorId={previewAuthorId}
-        onClose={() => setPreviewAuthorId(null)}
+      {/* MODALE CONFIRMATION DÉSABONNEMENT */}
+      <ConfirmModal
+        isOpen={showUnfollowModal}
+        onClose={() => setShowUnfollowModal(false)}
+        onConfirm={() => { setShowUnfollowModal(false); handleUnfollowAuthor(); }}
+        title="Se désabonner"
+        message={`Voulez-vous vous désabonner de ${article?.author?.name} ?`}
+        confirmText="Se désabonner"
+        isDanger={true}
       />
 
       {/* MODALE CONFIRMATION MODÉRATION */}

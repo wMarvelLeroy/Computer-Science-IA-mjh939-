@@ -7,7 +7,6 @@ const router = express.Router();
 // GET /api/admin-activity - Journal d'activité (super_admin uniquement)
 router.get('/', requireAuth, async (req, res) => {
   try {
-    // Vérification super_admin
     if (!isSuperAdmin(req)) {
       return res.status(403).json({ success: false, error: 'Accès réservé aux super_admin' });
     }
@@ -26,7 +25,6 @@ router.get('/', requireAuth, async (req, res) => {
     const { data, error, count } = await query;
     if (error) throw error;
 
-    // Enrichir avec les infos admin (nom + email)
     const adminIds = [...new Set((data || []).map(e => e.admin_id).filter(Boolean))];
     const adminMap = {};
     await Promise.all(adminIds.map(async (uid) => {
