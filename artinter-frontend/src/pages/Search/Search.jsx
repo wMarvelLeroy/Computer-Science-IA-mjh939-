@@ -137,7 +137,6 @@ const TABS = [
 
 function Search() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const q = searchParams.get('q') || '';
   const isHashtag = q.startsWith('#');
   const rawTag = isHashtag ? q.slice(1) : '';

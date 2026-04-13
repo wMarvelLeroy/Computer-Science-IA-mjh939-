@@ -11,8 +11,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUserPlus, faUserMinus, faRightToBracket,
   faCalendarDays, faFire, faEye, faHeart,
-  faGlobe, faPenNib, faShieldHalved, faUserShield,
-  faUser, faFileLines, faUsers, faArrowLeft,
+  faGlobe, faPenNib, faShieldHalved, /*faUserShield, faUsers,*/
+  faUser, faFileLines, faArrowLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faTwitter, faLinkedin, faGithub,
