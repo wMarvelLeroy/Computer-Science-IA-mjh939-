@@ -19,6 +19,66 @@ const Layout = ({ theme, setTheme }) => {
     const { user, isAuthenticated, logout, roleNotif, dismissRoleNotif } = useAuth();
     const role = user?.profil?.role || 'lecteur';
 
+    // Logique des notifications
+
+    const getNotifStyle = (type) => {
+        // Liste des types d'erreurs/danger
+        const errorTypes = ['restriction', 'demande_refusee', 'auteur_banni', 'article_supprime'];
+        // Liste des types de succès
+        const successTypes = ['restriction_levee', 'demande_approuvee', 'auteur_debanni'];
+        // Liste des types d'avertissement
+        const warningTypes = ['article_restreint', 'role_retire'];
+
+        let icon = 'notifications';
+        let color = 'info';
+
+        if (type === 'role_promu') {
+            icon = 'verified';
+            color = 'purple';
+        } else if (errorTypes.includes(type)) {
+            color = 'error';
+            if (type === 'restriction') icon = 'gavel';
+            if (type === 'demande_refusee') icon = 'cancel';
+            if (type === 'auteur_banni') icon = 'block';
+            if (type === 'article_supprime') icon = 'delete_forever';
+        } else if (successTypes.includes(type)) {
+            color = 'success';
+            if (type === 'restriction_levee') icon = 'lock_open';
+            if (type === 'demande_approuvee') icon = 'how_to_reg';
+            if (type === 'auteur_debanni') icon = 'check_circle';
+        } else if (warningTypes.includes(type)) {
+            color = 'warning';
+            icon = (type === 'article_restreint') ? 'visibility_off' : 'warning';
+        }
+
+        return { icon, colorClass: color };
+    };
+
+    const handleMarkAllRead = async () => {
+        try {
+            const { toutMarquerLu } = await import('../../api/api.js');
+            await toutMarquerLu();
+            setNotifCount(0);
+            setNotifs(prevNotifs => prevNotifs.map(n => ({ ...n, lu: true })));
+        } catch (error) {
+            console.error("Erreur lors du marquage des notifs:", error);
+        }
+    };
+
+    const handleMarkAsRead = async (notif) => {
+        if (notif.lu) return;
+        try {
+            const { marquerNotifLue } = await import('../../api/api.js');
+            await marquerNotifLue(notif.id);
+            setNotifCount(prev => Math.max(0, prev - 1));
+            setNotifs(prevNotifs => 
+                prevNotifs.map(n => n.id === notif.id ? { ...n, lu: true } : n)
+            );
+        } catch (error) {
+            console.error("Erreur lors du marquage de la notif:", error);
+        }
+    };
+
     // State pour la modale de déconnexion
     const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false);
 
@@ -47,7 +107,7 @@ const Layout = ({ theme, setTheme }) => {
         localStorage.setItem("sidebar-collapsed", JSON.stringify(isCollapsed));
     }, [isCollapsed]);
 
-    //   // Search icon click
+    //Search icon click
     const searchInputRef = React.useRef(null);
     const searchIconClick = () => {
         if (isCollapsed) toggleSidebar();
@@ -55,7 +115,7 @@ const Layout = ({ theme, setTheme }) => {
     };
 
 
-    //Sidebar modification 750px
+    //Sidebar modification sur petit ecran
     const sidebarRef = React.useRef(null);
 
     React.useEffect(() => {
@@ -113,7 +173,7 @@ const Layout = ({ theme, setTheme }) => {
                 const { data } = await getMesNotifications();
                 setNotifs(data || []);
                 setNotifCount((data || []).filter(n => !n.lu).length);
-            } catch {}
+            } catch { /* ignore */ }
         };
         loadNotifs();
     }, [isAuthenticated]);
@@ -157,71 +217,50 @@ const Layout = ({ theme, setTheme }) => {
                     </button>
 
                     {isAuthenticated && (
-                        <div ref={notifRef} style={{ position: 'relative' }}>
+                        <div ref={notifRef} className="notif-wrapper">
                             <button className="navbar-btn" title="Notifications" onClick={() => setNotifOpen(p => !p)}>
                                 <span className="material-icons" translate="no">notifications</span>
                                 {notifCount > 0 && (
-                                    <span style={{
-                                        position: 'absolute', top: 2, right: 2,
-                                        background: '#ef4444', color: '#fff',
-                                        fontSize: 10, fontWeight: 700, borderRadius: '50%',
-                                        width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        pointerEvents: 'none'
-                                    }}>{notifCount > 9 ? '9+' : notifCount}</span>
+                                    <span className="notif-badge">{notifCount > 9 ? '9+' : notifCount}</span>
                                 )}
                             </button>
                             {notifOpen && (
-                                <div style={{
-                                    position: 'absolute', top: '110%', right: 0,
-                                    background: 'var(--color-surface)', border: '1px solid var(--color-border)',
-                                    borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-                                    width: 320, maxHeight: 400, overflowY: 'auto', zIndex: 500,
-                                }}>
-                                    <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <strong style={{ fontSize: 14 }}>Notifications</strong>
+                                <div className="notif-panel">
+                                    <div className="notif-panel-header">
+                                        <strong>Notifications</strong>
                                         {notifCount > 0 && (
-                                            <button style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--color-accent)' }}
-                                                onClick={async () => {
-                                                    try { const { toutMarquerLu } = await import('../../api/api.js'); await toutMarquerLu(); setNotifCount(0); setNotifs(p => p.map(n => ({ ...n, lu: true }))); } catch {}
-                                                }}>Tout marquer lu</button>
+                                            <button className="notif-mark-all" onClick={handleMarkAllRead}>
+                                                Tout marquer lu
+                                            </button>
                                         )}
                                     </div>
                                     {notifs.length === 0 ? (
-                                        <div style={{ padding: 24, textAlign: 'center', color: 'var(--color-text-placeholder)', fontSize: 13 }}>Aucune notification</div>
-                                    ) : notifs.slice(0, 5).map(n => (
-                                        <div key={n.id} style={{
-                                            padding: '12px 16px', borderBottom: '1px solid var(--color-border)',
-                                            background: n.lu ? 'transparent' : 'rgba(16,185,129,0.05)',
-                                            cursor: 'pointer'
-                                        }} onClick={async () => {
-                                            if (!n.lu) {
-                                                try { const { marquerNotifLue } = await import('../../api/api.js'); await marquerNotifLue(n.id); setNotifCount(p => Math.max(0, p - 1)); setNotifs(p => p.map(x => x.id === n.id ? { ...x, lu: true } : x)); } catch {}
-                                            }
-                                        }}>
-                                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                                                <span className="material-icons" style={{ fontSize: 18, marginTop: 1, flexShrink: 0, color: ['restriction','demande_refusee','auteur_banni','article_supprime'].includes(n.type) ? '#ef4444' : ['restriction_levee','demande_approuvee','auteur_debanni'].includes(n.type) ? '#10b981' : n.type === 'role_promu' ? '#7c3aed' : ['article_restreint','role_retire'].includes(n.type) ? '#f59e0b' : '#64748b' }}>
-                                                    { n.type === 'role_promu' ? 'verified' : n.type === 'restriction' ? 'gavel' : n.type === 'restriction_levee' ? 'lock_open' : n.type === 'demande_approuvee' ? 'how_to_reg' : n.type === 'demande_refusee' ? 'cancel' : n.type === 'auteur_banni' ? 'block' : n.type === 'auteur_debanni' ? 'check_circle' : n.type === 'article_restreint' ? 'visibility_off' : n.type === 'article_supprime' ? 'delete_forever' : 'notifications' }
-                                                </span>
-                                                <div>
-                                                    <div style={{ fontSize: 13, fontWeight: n.lu ? 500 : 700, color: 'var(--color-text)' }}>{n.titre}</div>
-                                                    <div style={{ fontSize: 12, color: 'var(--color-text-placeholder)', marginTop: 2, whiteSpace: 'pre-line', lineHeight: 1.4 }}>{n.message}</div>
-                                                    <div style={{ fontSize: 11, color: 'var(--color-text-placeholder)', marginTop: 4 }}>{new Date(n.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>
+                                        <div className="notif-empty">Aucune notification</div>
+                                    ) : (
+                                        notifs.map(n => {
+                                            const { icon, colorClass } = getNotifStyle(n.type);
+                                            const colorMap = { info: '#3b82f6', success: '#10b981', error: '#ef4444', warning: '#f59e0b', purple: '#8b5cf6' };
+                                            const iconColor = colorMap[colorClass] || '#3b82f6';
+                                            return (
+                                                <div
+                                                    key={n.id}
+                                                    onClick={() => handleMarkAsRead(n)}
+                                                    className={`notif-item${n.lu ? '' : ' notif-item--unread'}`}
+                                                >
+                                                    <div className="notif-icon" style={{ background: iconColor + '20' }}>
+                                                        <span className="material-icons" style={{ color: iconColor }}>{icon}</span>
+                                                    </div>
+                                                    <div className="notif-body">
+                                                        <div className={`notif-title${n.lu ? '' : ' notif-title--unread'}`}>{n.titre || 'Notification'}</div>
+                                                        <div className="notif-message">{n.message}</div>
+                                                        <div className="notif-date">{new Date(n.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>
+                                                    </div>
+                                                    {!n.lu && <div className="notif-dot" />}
                                                 </div>
-                                                {!n.lu && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', flexShrink: 0, marginTop: 4 }} />}
-                                            </div>
-                                        </div>
-                                    ))}
-                                    <Link
-                                        to="/notifications"
-                                        onClick={() => setNotifOpen(false)}
-                                        style={{
-                                            display: 'block', padding: '10px 16px',
-                                            textAlign: 'center', fontSize: 13,
-                                            color: 'var(--color-accent)', fontWeight: 500,
-                                            borderTop: '1px solid var(--color-border)',
-                                            textDecoration: 'none'
-                                        }}
-                                    >
+                                            );
+                                        })
+                                    )}
+                                    <Link to="/notifications" onClick={() => setNotifOpen(false)} className="notif-footer">
                                         Voir toutes les notifications →
                                     </Link>
                                 </div>

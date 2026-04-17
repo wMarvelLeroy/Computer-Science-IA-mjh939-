@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import './Footer.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faInstagram, faTwitter, faFacebook, faLinkedin } from '@fortawesome/free-brands-svg-icons';
+import { faInstagram, faXTwitter, faFacebook, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 
 const Footer = () => {
   const [email, setEmail] = React.useState('');
@@ -69,8 +69,8 @@ const Footer = () => {
               <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" title="Instagram">
                 <FontAwesomeIcon icon={faInstagram} />
               </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" title="Twitter / X">
-                <FontAwesomeIcon icon={faTwitter} />
+              <a href="https://x.com" target="_blank" rel="noopener noreferrer" title="X">
+                <FontAwesomeIcon icon={faXTwitter} />
               </a>
               <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" title="Facebook">
                 <FontAwesomeIcon icon={faFacebook} />

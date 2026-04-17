@@ -38,8 +38,11 @@
   transform: scale(1.03);
 }
 
-.ac2-img .material-icons {
+.ac2-img .material-icons,
+.ac2-img svg {
   font-size: 36px;
+  width: 36px;
+  height: 36px;
 }
 
 .ac2-cat-badge {

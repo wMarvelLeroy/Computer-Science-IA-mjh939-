@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFileLines } from '@fortawesome/free-solid-svg-icons';
 import './CatalogArticleCard.css';
 
 function formatDate(dateStr) {
@@ -23,23 +25,23 @@ const CatalogArticleCard = ({ article }) => {
   return (
     <div className="ac2-card" onClick={() => navigate(`/article/${article.slug}`)}>
 
-      {article.image && (
-        <div className="ac2-img">
-          {article.image.startsWith('#')
+      <div className="ac2-img">
+        {article.image
+          ? article.image.startsWith('#')
             ? <div style={{ width: '100%', height: '100%', backgroundColor: article.image }} />
             : <img src={article.image} alt={article.title} loading="lazy" />
-          }
-          {article.category && (
-            <Link
-              to={article.categorySlug ? `/Catalog?categorie=${article.categorySlug}` : '/Catalog'}
-              className="ac2-cat-badge"
-              onClick={e => e.stopPropagation()}
-            >
-              {article.category}
-            </Link>
-          )}
-        </div>
-      )}
+          : <FontAwesomeIcon icon={faFileLines} />
+        }
+        {article.image && article.category && (
+          <Link
+            to={article.categorySlug ? `/Catalog?categorie=${article.categorySlug}` : '/Catalog'}
+            className="ac2-cat-badge"
+            onClick={e => e.stopPropagation()}
+          >
+            {article.category}
+          </Link>
+        )}
+      </div>
 
       <div className="ac2-body">
         {!article.image && article.category && (

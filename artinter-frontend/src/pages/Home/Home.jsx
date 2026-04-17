@@ -20,6 +20,13 @@ const Home = () => {
       .finally(() => setLoading(false));
   }, []);
 
+  React.useEffect(() => {
+    if (window.location.hash === '#aboutUs') {
+      const el = document.getElementById('aboutUs');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
+
   const slides = articles.slice(0, 5);
   const gridArticles = articles.slice(0, 6);
 

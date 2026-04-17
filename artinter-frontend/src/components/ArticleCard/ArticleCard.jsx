@@ -1,5 +1,7 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faFileLines } from '@fortawesome/free-solid-svg-icons'
 import './ArticleCard.css'
 
 const ArticleCard = ({ article }) => {
@@ -15,28 +17,27 @@ const ArticleCard = ({ article }) => {
     >
 
       {/* Image + Badge Catégorie */}
-      {article.image && (
-        <div className="card-image-wrapper">
-          {article.image.startsWith('#') ? (
-              <div style={{ backgroundColor: article.image, width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}></div>
-          ) : (
-              <img src={article.image} alt={article.title} loading="lazy" />
-          )}
-          {article.category && (
-            <Link
-              to={article.categorySlug ? `/Catalog?categorie=${article.categorySlug}` : '/Catalog'}
-              className="card-category"
-              onClick={e => e.stopPropagation()}
-            >
-              {article.category}
-            </Link>
-          )}
-        </div>
-      )}
+      <div className={`card-image-wrapper${article.image ? '' : ' card-image-wrapper--placeholder'}`}>
+        {article.image
+          ? article.image.startsWith('#')
+            ? <div style={{ backgroundColor: article.image, width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}></div>
+            : <img src={article.image} alt={article.title} loading="lazy" />
+          : <FontAwesomeIcon icon={faFileLines} />
+        }
+        {article.image && article.category && (
+          <Link
+            to={article.categorySlug ? `/Catalog?categorie=${article.categorySlug}` : '/Catalog'}
+            className="card-category"
+            onClick={e => e.stopPropagation()}
+          >
+            {article.category}
+          </Link>
+        )}
+      </div>
 
       {/* Contenu */}
       <div className="card-content">
-        {!article.image && article.category && (
+        {article.category && (
           <Link
             to={article.categorySlug ? `/Catalog?categorie=${article.categorySlug}` : '/Catalog'}
             className="card-category-text"

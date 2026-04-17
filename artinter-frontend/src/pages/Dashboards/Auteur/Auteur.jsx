@@ -44,7 +44,7 @@ function DashboardAuteur() {
                      }
                 }
             } catch (err) {
-                // Ignore errors here
+                // non bloquant
             }
 
             try {
@@ -148,7 +148,7 @@ function DashboardAuteur() {
                 {/* Quick Actions */}
                 <div className="section-card">
                     <div className="section-header">
-                        <h2 className="section-title">Creativite</h2>
+                        <h2 className="section-title">Créativité</h2>
                     </div>
 
                     <div className="quick-actions">

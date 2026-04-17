@@ -232,7 +232,7 @@ router.post('/:id/refuser', async (req, res) => {
       return res.status(500).json({ success: false, error: error.message });
     }
     
-    // Notify user
+    // Notifier l'utilisateur
     await supabase.from('notifications').insert([{
       user_id: data.user_id,
       type: 'demande_refusee',

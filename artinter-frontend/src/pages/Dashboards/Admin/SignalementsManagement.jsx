@@ -67,11 +67,6 @@ export default function SignalementsManagement() {
   const [toast, setToast]               = useState(null);
   const [claimsMap, setClaimsMap]       = useState({}); // { [item_id]: claim }
 
-  const isClaimedByMe = (id) => {
-    const c = claimsMap[id];
-    return c && new Date(c.expires_at) > new Date() && c.claimed_by === currentAdminId;
-  };
-
   const updateClaim = (itemId, claim) => {
     setClaimsMap(prev => ({ ...prev, [itemId]: claim || undefined }));
   };
@@ -529,7 +524,7 @@ export default function SignalementsManagement() {
 
             {/* Actions */}
             <div className="sig-detail-actions">
-              {selected.statut === 'en_attente' && (selected._type === 'commentaire' || isClaimedByMe(selected.id)) && (
+              {selected.statut === 'en_attente' && (
                 <>
                   <button
                     className="admin-btn primary"

@@ -37,7 +37,7 @@ router.post('/signin', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Client temporaire pour ne pas contaminer le client admin global avec la session utilisateur
+    // Client isolé pour éviter de polluer la session globale admin
     const { createClient } = await import('@supabase/supabase-js');
     const tempClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY, {
       auth: {

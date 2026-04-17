@@ -2,8 +2,11 @@ import ImageTool from '@editorjs/image';
 import imageCompression from 'browser-image-compression';
 import { uploadArticleImage } from '../../api/api';
 
+// Étend le plugin officiel EditorJS ImageTool pour rediriger l'upload vers Supabase Storage 
+// et compresser les images côté client avant envoi
 class SupabaseImageTool extends ImageTool {
   constructor({ data = {}, api, config = {}, readOnly, block }) {
+    // Normalise le format de données : EditorJS attend { file: { url } } mais on peut recevoir { url }
     if (data.url && !data.file) {
       data = { ...data, file: { url: data.url } };
     }
@@ -15,6 +18,7 @@ class SupabaseImageTool extends ImageTool {
         ...config,
         uploader: {
           uploadByFile: async (file) => {
+            // Compression dans un Web Worker pour ne pas bloquer l'interface
             const compressed = await imageCompression(file, {
               maxSizeMB: 1,
               maxWidthOrHeight: 1920,

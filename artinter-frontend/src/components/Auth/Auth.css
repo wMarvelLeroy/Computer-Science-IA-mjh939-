@@ -103,6 +103,8 @@
   line-height: 1.15;
   margin-bottom: 18px;
   letter-spacing: -1.5px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .auth-left-headline em {
@@ -431,7 +433,7 @@
   padding: 12px;
   background: transparent;
   color: var(--color-text-primary);
-  border: 1.5px solid var(--color-border-hr);
+  border: 1.5px solid var(--color-accent);
   border-radius: 10px;
   font-weight: 600;
   font-size: 14px;

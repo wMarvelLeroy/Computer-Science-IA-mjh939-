@@ -553,9 +553,10 @@ const Article = () => {
                 <span className="material-icons" translate="no">schedule</span>
                 {(() => {
                   if (article.readTime) return `${article.readTime} min de lecture`;
+                  // Fallback : calcule le temps à la volée si absent de la base de données
                   const text = (article.content || '').replace(/<[^>]+>/g, ' ');
                   const words = text.split(/\s+/).filter(Boolean).length;
-                  return `${Math.max(1, Math.ceil(words / 238))} min de lecture`;
+                  return `${Math.max(1, Math.ceil(words / 238))} min de lecture`; // 238 mots/min
                 })()}
               </span>
             </div>
@@ -1228,7 +1229,7 @@ const Article = () => {
                   Se connecter
                 </Link>
                 <button className="article-login-btn article-login-btn--secondary" onClick={() => setLoginOverlay(false)}>
-                  Continuer sans compte
+                  Continuer sans liker
                 </button>
               </div>
             </div>

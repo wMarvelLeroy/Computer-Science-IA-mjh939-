@@ -109,12 +109,12 @@ const ArticleEditor = () => {
 
         const runAutoSave = async () => {
             if (!hasUnsavedChanges || saving || !userId || !ejInstance.current) return;
-            if (!title?.trim()) return; // Pas de titre = pas de sauvegarde silencieuse
 
             setAutoSaveStatus('saving');
             try {
                 const outputData  = await ejInstance.current.save();
                 if (!outputData?.blocks) { setAutoSaveStatus('error'); return; }
+                if (!title?.trim() && outputData.blocks.length === 0) { setAutoSaveStatus(null); return; }
                 const htmlContent = generateHTML(outputData);
                 const contentImages = outputData.blocks
                     .filter(b => b.type === 'image')
@@ -124,7 +124,7 @@ const ArticleEditor = () => {
                     : contentImages;
 
                 const articleData = {
-                    titre:        title,
+                    titre:        title.trim() || getAutoTitle(outputData.blocks),
                     categorie:    selectedCategory || null,
                     est_publie:   statusRef.current === 'publie',
                     contenu_json: outputData,
@@ -132,7 +132,7 @@ const ArticleEditor = () => {
                     images:       allImages,
                     tags:         tags.split(',').map(t => t.trim()).filter(Boolean),
                     id_auteur:    userId,
-                    temps_lecture: Math.max(1, Math.ceil(wordCount / 238)),
+                    temps_lecture: Math.max(1, Math.ceil(wordCount / 238)), // 238 mots/min = vitesse moyenne de lecture adulte
                 };
 
                 const currentId = autoSaveRef.current || id;
@@ -158,12 +158,13 @@ const ArticleEditor = () => {
             }
         };
 
+        // useRef plutôt que state pour l'ID de l'article : évite de recréer l'intervalle à chaque sauvegarde
         const interval = setInterval(runAutoSave, AUTO_SAVE_INTERVAL);
         return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hasUnsavedChanges, saving, userId, title, selectedCategory, coverUrl, tags, wordCount, id]);
 
-    // Load initial data
+    // Chargement initial
     useEffect(() => {
         const init = async () => {
             try {
@@ -333,6 +334,18 @@ const ArticleEditor = () => {
         });
     };
 
+    const getAutoTitle = (blocks) => {
+        if (!blocks || blocks.length === 0) return 'Sans titre';
+        const textBlock = blocks.find(b => ['paragraph', 'header', 'quote'].includes(b.type));
+        if (!textBlock) return '<Image>';
+        const rawText = (textBlock.data.text || textBlock.data.caption || '')
+            .replace(/<[^>]+>/g, '').trim();
+        if (!rawText) return 'Sans titre';
+        const match = rawText.match(/^.{1,80}?[.!?](?=\s|$)/);
+        if (match) return match[0];
+        return rawText.slice(0, 80) + (rawText.length > 80 ? '…' : '');
+    };
+
     const saveInternal = async (forcePublish = false) => {
         setSaving(true);
         try {
@@ -362,8 +375,9 @@ const ArticleEditor = () => {
                 ? [coverUrl, ...contentImages.filter(url => url !== coverUrl)]
                 : contentImages;
 
+            const effectiveTitle = title.trim() || getAutoTitle(outputData.blocks);
             const articleData = {
-                titre: title,
+                titre: effectiveTitle,
                 categorie: selectedCategory || null,
                 est_publie: isPublished,
                 contenu_json: outputData,
@@ -375,20 +389,26 @@ const ArticleEditor = () => {
             };
 
             
+            const effectiveId = id || autoSaveRef.current;
             let result;
             try {
-                if (id) {
-                    result = await updateArticle(id, articleData);
+                if (effectiveId) {
+                    result = await updateArticle(effectiveId, articleData);
                 } else {
                     result = await createArticle(articleData);
                 }
             } catch (apiError) {
                 console.error('[ArticleEditor] API Error:', apiError);
-                const errorMessage = apiError.response?.data?.error
-                    || apiError.response?.data?.message 
-                    || apiError.message 
-                    || 'Erreur inconnue';
-                
+                const rawError = apiError.response?.data?.error
+                    || apiError.response?.data?.message
+                    || apiError.message
+                    || '';
+                // Masquer les erreurs brutes DB/serveur
+                const isDbError = /value too long|character varying|duplicate key|violates|constraint|syntax error|PGRST/i.test(rawError);
+                const errorMessage = isDbError || !rawError
+                    ? 'Une erreur est survenue lors de la sauvegarde. Vérifiez que tous les champs sont valides et réessayez.'
+                    : rawError;
+
                 setFeedbackModal({
                     isOpen: true,
                     title: 'Erreur de sauvegarde',
@@ -396,7 +416,7 @@ const ArticleEditor = () => {
                     isError: true,
                     isDanger: true
                 });
-                return; // Exit early
+                return;
             }
 
 
@@ -404,7 +424,8 @@ const ArticleEditor = () => {
                 setHasUnsavedChanges(false);
                 if (forcePublish) setStatus('publie');
                 
-                if (!id && result.data?.id) {
+                if (!effectiveId && result.data?.id) {
+                    autoSaveRef.current = result.data.id;
                     window.history.replaceState(null, '', `/dashboard/auteur/edit/${result.data.id}`);
                 }
                 
@@ -442,7 +463,6 @@ const ArticleEditor = () => {
 
 const validateArticle = async () => {
     const errors = [];
-    if (!title || title.trim().length === 0) errors.push("Le titre est manquant.");
     if (!selectedCategory) errors.push("Veuillez sélectionner une catégorie.");
     if (wordCount < 1) errors.push("Le contenu de l'article est vide.");
 
@@ -452,14 +472,15 @@ const validateArticle = async () => {
 const handlePreview = async () => {
     const outputData = await ejInstance.current.save();
     const html = generateHTML(outputData);
-    
+    const displayTitle = title.trim() || getAutoTitle(outputData.blocks);
+
     setPreviewData({
-        titre: title,
+        titre: displayTitle,
         contenu_html: html,
         contenu_json: outputData,
         image_url: coverUrl,
         tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-        // Add fake author/date for preview
+        // Données fictives pour l'aperçu
         est_publie: false
     });
     setShowPreview(true);
@@ -588,7 +609,7 @@ const handleConfirmPublish = async () => {
                     articleData={previewData}
                     onClose={() => setShowPreview(false)}
                     onConfirm={handleConfirmPublish}
-                    isPublishing={true}
+                    isPublishing={status !== 'publie'}
                 />
             )}
 
@@ -812,6 +833,7 @@ const handleConfirmPublish = async () => {
                                 rows={1}
                                 value={title}
                                 onChange={(e) => {
+                                    if (e.target.value.length > 500) return;
                                     updateTitle(e.target.value);
                                     e.target.style.height = 'auto';
                                     e.target.style.height = e.target.scrollHeight + 'px';
@@ -826,7 +848,13 @@ const handleConfirmPublish = async () => {
                                 readOnly={status === 'publie' && !editConfirmed}
                                 onClick={() => { if (status === 'publie' && !editConfirmed) setShowEditConfirmModal(true); }}
                                 style={{ overflow: 'hidden', resize: 'none' }}
+                                maxLength={500}
                             />
+                            {title.length > 400 && (
+                                <div className={`title-char-counter${title.length >= 490 ? ' title-char-counter--danger' : ''}`}>
+                                    {title.length}/500
+                                </div>
+                            )}
                         </div>
 
                         {/* Divider */}
@@ -901,7 +929,7 @@ const handleConfirmPublish = async () => {
                     title={feedbackModal.title}
                     message={feedbackModal.message}
                     isDanger={feedbackModal.isDanger}
-                    showCancel={false} // Alert mode (only OK button)
+                    showCancel={false} // mode alerte — juste OK
                     confirmText="OK"
                 />
             </div>

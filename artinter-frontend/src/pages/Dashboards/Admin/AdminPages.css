@@ -93,6 +93,9 @@
   white-space: nowrap;
 }
 
+/* .user-row {
+  margin-top: 10px;
+} */
 /* Table */
 .admin-table-wrap {
   background: var(--color-bg-sidebar);
@@ -224,11 +227,11 @@
   text-align: left;
 }
 
-.badge-lecteur  { background: rgba(100,116,139,0.15); color: #64748b; }
+.badge-lecteur  { background: rgba(100,116,139,0.15); color: var(--color-text-placeholder); }
 .badge-auteur   { background: rgba(16,185,129,0.12);  color: var(--color-accent); }
 .badge-admin    { background: rgba(139,92,246,0.12);  color: #8b5cf6; }
 .badge-publie   { background: rgba(16,185,129,0.12);  color: var(--color-accent); }
-.badge-brouillon{ background: rgba(100,116,139,0.15); color: #64748b; }
+.badge-brouillon{ background: rgba(100,116,139,0.15); color: var(--color-text-placeholder); }
 .badge-banni    { background: rgba(239,68,68,0.1);    color: #ef4444; }
 
 .badge-vous {
@@ -481,6 +484,7 @@
   font-family: inherit;
   transition: border-color 0.2s;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .admin-form-group input:focus,

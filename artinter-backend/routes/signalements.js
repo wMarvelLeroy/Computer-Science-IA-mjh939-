@@ -19,7 +19,7 @@ router.get('/', requireAuth, async (req, res) => {
       .from('signalements')
       .select(`
         *,
-        profils!signalements_user_id_fkey(id, nom, avatar_url),
+        profils!signalements_user_id_fkey(id, nom, avatar_url, email),
         articles!signalements_article_id_fkey(id, titre, slug, est_publie)
       `)
       .order('created_at', { ascending: false });
@@ -45,7 +45,7 @@ router.get('/', requireAuth, async (req, res) => {
 
     const enriched = data.map(s => ({
       ...s,
-      profils: s.profils ? { ...s.profils, email: emailMap[s.user_id] || null } : s.profils,
+      profils: s.profils ? { ...s.profils, email: emailMap[s.user_id] || s.profils.email || null } : s.profils,
     }));
 
     res.json({ success: true, data: enriched });

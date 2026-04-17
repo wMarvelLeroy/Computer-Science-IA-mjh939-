@@ -259,27 +259,24 @@ export default function UsersManagement() {
                   : '?';
 
                 return (
-                  <tr key={user.id}>
+                  <tr className="user-row" key={user.id}>
                     <td data-label="Utilisateur">
                       <div className="admin-user-cell">
-                        <button
-                          className="admin-avatar admin-avatar-btn"
-                          onClick={() => window.open(`/profil/${user.id}`, '_blank')}
-                          title="Voir le profil"
-                        >
+                        <div className="admin-avatar">
                           {user.avatar_url
                             ? <img src={user.avatar_url} alt="" />
                             : initials
                           }
-                        </button>
+                        </div>
                         <div className="admin-user-info">
                           <strong>
                             <button
                               className="admin-user-name-btn"
                               onClick={() => window.open(`/profil/${user.id}`, '_blank')}
-                              title="Voir le profil"
+                              title="Voir le profil (nouvel onglet)"
                             >
                               {user.nom || 'Sans nom'}
+                              <span className="material-icons" style={{ fontSize: 13, marginLeft: 4, verticalAlign: 'middle', opacity: 0.6 }}>open_in_new</span>
                             </button>
                             {isSelf && <span className="badge-vous">Vous</span>}
                           </strong>

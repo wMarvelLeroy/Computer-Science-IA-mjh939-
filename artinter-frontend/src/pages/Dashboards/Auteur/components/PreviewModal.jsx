@@ -53,7 +53,7 @@ const PreviewModal = ({ onClose, onConfirm, articleData, isPublishing }) => {
                         </div>
                     </header>
 
-                    {articleData.image_url && (
+                    {articleData.image_url ? (
                         <div className="article-image-container">
                             {articleData.image_url.startsWith('#') ? (
                                 <div className="article-main-image" style={{ backgroundColor: articleData.image_url, minHeight: '400px', width: '100%', borderRadius: '12px' }} />
@@ -61,6 +61,8 @@ const PreviewModal = ({ onClose, onConfirm, articleData, isPublishing }) => {
                                 <img src={articleData.image_url} alt={articleData.titre} className="article-main-image" />
                             )}
                         </div>
+                    ) : (
+                        <hr style={{ border: 'none', borderTop: '1px solid var(--color-border-hr)', margin: '0 0 2rem 0' }} />
                     )}
 
                     <div

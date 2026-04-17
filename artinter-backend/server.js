@@ -84,19 +84,19 @@ app.use('/api/restrictions',       restrictionsRoutes);
 app.use('/api/moderation-claims',  moderationClaimsRoutes);
 app.use('/api/admin-activity',     adminActivityRoutes);
 
-// Global error handler
+// Gestionnaire d'erreurs global
 app.use((err, req, res, next) => {
-  console.error('Global Error:', err);
-  
-  // Handle payload too large
+  console.error('Erreur globale :', err);
+
+  // Payload trop volumineux
   if (err.type === 'entity.too.large') {
     return res.status(413).json({
       success: false,
       error: 'Payload trop volumineux. Réduisez la taille des images ou du contenu.'
     });
   }
-  
-  // Handle JSON parse errors
+
+  // Erreur de parsing JSON
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
     return res.status(400).json({
       success: false,

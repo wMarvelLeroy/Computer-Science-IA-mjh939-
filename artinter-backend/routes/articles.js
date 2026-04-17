@@ -127,7 +127,7 @@ router.get('/brouillons', requireAuth, async (req, res) => {
   }
 });
 
-// Helper to get user from optional token
+// Récupère l'utilisateur depuis un token optionnel (pas d'erreur si absent)
 const getOptionalUser = async (req) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return null;
@@ -150,11 +150,10 @@ router.get('/admin/all', requireAuth, async (req, res) => {
         auteurs(id, est_banni, profils(nom, avatar_url)),
         categories(id, nom, slug)
       `)
+      .eq('est_publie', true)
       .order('created_at', { ascending: false })
       .limit(Number(limit));
 
-    if (statut === 'publie') query = query.eq('est_publie', true);
-    else if (statut === 'brouillon') query = query.eq('est_publie', false);
     if (categorie) query = query.eq('categorie', categorie);
 
     const { data, error } = await query;
@@ -224,6 +223,7 @@ router.put('/admin/:id/republier', requireAuth, async (req, res) => {
       .single();
     if (error) throw error;
 
+    // Appel sans await : les notifications ne doivent pas bloquer la réponse à l'auteur
     notifyFollowers(data.id_auteur, data.titre, data.slug);
 
     res.json({ success: true, data });

@@ -29,6 +29,7 @@ function AuthCallback() {
         const json = await res.json();
         if (json.success) {
           login(json.data);
+              // Redirige vers la page d'origine si l'utilisateur a été interrompu par le login
           const params   = new URLSearchParams(window.location.search);
           const returnTo = params.get('returnTo') || sessionStorage.getItem('auth_return_to') || '/';
           sessionStorage.removeItem('auth_return_to');

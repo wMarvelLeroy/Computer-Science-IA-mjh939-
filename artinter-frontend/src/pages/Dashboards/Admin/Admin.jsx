@@ -100,7 +100,7 @@ function DashboardAdmin() {
                         icon={<FontAwesomeIcon icon={faUsers} />}
                         title="Utilisateurs"
                         value={stats?.total_users || 0}
-                        change={`${stats?.total_auteurs || 0} auteurs`}
+                        change={`${stats?.total_auteurs || 0} auteur${(stats?.total_auteurs || 0) > 1 ? 's' : ''}`}
                         color="blue"
                     />
                     <StatsCard

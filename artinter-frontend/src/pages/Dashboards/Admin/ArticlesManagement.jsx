@@ -19,7 +19,6 @@ export default function ArticlesManagement() {
   const [categories, setCategories]   = useState([]);
   const [loading, setLoading]         = useState(true);
   const [search, setSearch]           = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
   const [catFilter, setCatFilter]     = useState('all');
   const [modal, setModal]             = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
@@ -62,12 +61,8 @@ export default function ArticlesManagement() {
     const matchSearch = !q
       || a.titre?.toLowerCase().includes(q)
       || a.auteurs?.nom?.toLowerCase().includes(q);
-    const matchStatus =
-      statusFilter === 'all'
-      || (statusFilter === 'publie' && a.est_publie)
-      || (statusFilter === 'brouillon' && !a.est_publie);
     const matchCat = catFilter === 'all' || a.categorie === catFilter;
-    return matchSearch && matchStatus && matchCat;
+    return matchSearch && matchCat;
   });
 
   const handleDelete = async () => {
@@ -140,15 +135,6 @@ export default function ArticlesManagement() {
         </div>
         <select
           className="admin-select"
-          value={statusFilter}
-          onChange={e => setStatusFilter(e.target.value)}
-        >
-          <option value="all">Tous les statuts</option>
-          <option value="publie">Publiés</option>
-          <option value="brouillon">Brouillons</option>
-        </select>
-        <select
-          className="admin-select"
           value={catFilter}
           onChange={e => setCatFilter(e.target.value)}
         >
@@ -213,7 +199,7 @@ export default function ArticlesManagement() {
                   <td data-label="Statut">
                     {article.est_publie
                       ? <span className="badge badge-publie">Publié</span>
-                      : <span className="badge badge-brouillon">Brouillon</span>
+                      : <span className="badge badge-brouillon">Restreint</span>
                     }
                   </td>
 
@@ -249,7 +235,7 @@ export default function ArticlesManagement() {
                           title="Dépublier l'article"
                         >
                           <span className="material-icons">visibility_off</span>
-                          <span className="btn-label">Restreindre</span>
+                          <span className="btn-label">Dépublier</span>
                         </button>
                       )}
                       {['admin','super_admin'].includes(currentUser?.profil?.role) && !article.est_publie && (

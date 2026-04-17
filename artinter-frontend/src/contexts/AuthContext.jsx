@@ -37,6 +37,7 @@ export function AuthProvider({ children }) {
             if (response.success && response.data) {
                 setUser(response.data);
                 setIsAuthenticated(true);
+                // Détecte une promotion de rôle depuis la dernière session pour afficher une bannière
                 const newRole = response.data.profil?.role;
                 const lastRole = localStorage.getItem('artinter_last_role');
                 if (newRole && newRole !== lastRole && ['auteur', 'admin', 'super_admin'].includes(newRole)) {

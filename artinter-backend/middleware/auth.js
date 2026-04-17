@@ -1,5 +1,6 @@
 import { supabase } from '../config/supabase.js';
 
+// Vérifie le token Bearer JWT via Supabase et attache l'utilisateur + son profil à req
 export const requireAuth = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');

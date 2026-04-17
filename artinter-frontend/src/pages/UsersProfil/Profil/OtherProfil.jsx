@@ -401,7 +401,7 @@ const OtherProfil = () => {
                 <FontAwesomeIcon icon={faRightToBracket} /> Se connecter
               </Link>
               <button className="op-overlay-btn op-overlay-btn--secondary" onClick={() => setShowLoginHint(false)}>
-                Continuer sans compte
+                Continuer sans liker
               </button>
             </div>
           </div>

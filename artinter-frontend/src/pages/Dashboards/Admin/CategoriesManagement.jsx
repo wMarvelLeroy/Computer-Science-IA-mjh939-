@@ -84,7 +84,7 @@ export default function CategoriesManagement() {
   const handleFormChange = (field, value) => {
     setForm(prev => {
       const next = { ...prev, [field]: value };
-      if (field === 'nom' && !modal?.cat) {
+      if (field === 'nom') {
         next.slug = slugify(value);
       }
       return next;
@@ -93,7 +93,6 @@ export default function CategoriesManagement() {
 
   const handleCreate = async () => {
     if (!form.nom.trim()) { setFormError('Le nom est obligatoire.'); return; }
-    if (!form.slug.trim()) { setFormError('Le slug est obligatoire.'); return; }
     setActionLoading(true);
     try {
       const { data } = await createCategorie({
@@ -113,7 +112,6 @@ export default function CategoriesManagement() {
 
   const handleEdit = async () => {
     if (!form.nom.trim()) { setFormError('Le nom est obligatoire.'); return; }
-    if (!form.slug.trim()) { setFormError('Le slug est obligatoire.'); return; }
     setActionLoading(true);
     try {
       const { data } = await updateCategorie(modal.cat.id, {
@@ -229,15 +227,6 @@ export default function CategoriesManagement() {
                   placeholder="Ex: Peinture contemporaine"
                   value={form.nom}
                   onChange={e => handleFormChange('nom', e.target.value)}
-                />
-              </div>
-              <div className="admin-form-group">
-                <label>Slug *</label>
-                <input
-                  type="text"
-                  placeholder="Ex: peinture-contemporaine"
-                  value={form.slug}
-                  onChange={e => handleFormChange('slug', e.target.value)}
                 />
               </div>
               <div className="admin-form-group">
